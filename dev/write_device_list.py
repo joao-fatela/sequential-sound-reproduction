@@ -4,6 +4,7 @@
 # It then prompts the user to input a list of desired audiodevices
 #
 # Dependencies on the pyo (https://pypi.org/project/pyo/) and configparser (https://pypi.org/project/configparser/) libraries
+# NOTE: dependency on pyo requires python<=3.10
 #
 # This program was designed with a specific procedure in mind and is part of a proto- software bundle.
 # It is not optimized for any uses outside its original purpose.
@@ -21,7 +22,6 @@ def import_or_install(package):
         __import__(package)
     except ImportError:
         pip.main(['install', package]) 
-
 
 
 import pip

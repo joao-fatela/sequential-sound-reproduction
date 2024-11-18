@@ -5,6 +5,7 @@
 # and a reproduction mode set as a string argument to the python program call.
 #
 # Dependencies on the pyo (https://pypi.org/project/pyo/) and configparser (https://pypi.org/project/configparser/) libraries
+# NOTE: dependency on pyo requires python<=3.10
 #
 # This program was designed with a specific procedure in mind. Hence, it is not optimized for uses outside basic reproduction modes.
 # It can, however, be changed to suit any of the user's needs: basic functions for simple reproduction routines are provided
