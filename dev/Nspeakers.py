@@ -47,12 +47,8 @@ def inicio(ini_file='.\lib\config.ini'):
 
 ##########################################################################################################################################
 #      CONSTANTS
-# ! default (config file)
 MODE, DEVICE_IDS = inicio() 
 
-# ! debug (user input)
-# MODE = <reproduction mode> # 'test', 'w', 'p', 'b', <custom>
-# DEVICE_IDS = <list of device IDs> # integer list of device IDs as detected by Portaudio driver
 
 ##########################################################################################################################################
 
@@ -71,12 +67,11 @@ def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
         file = folder + signal_str + '.wav'
     else:
         # search for file in '<folder>' directory
-        signal_str = signal
-        file = folder + signal_str + '.wav'
+        file = signal
 
     return file
         
-def play(ID=0,signal='test',dur=1):
+def play(ID=0,signal='test',dur=1, wait=0):
 
     # reproduces a single signal given <signal> flag 
     # for duration of <dur> seconds
@@ -119,6 +114,9 @@ def play(ID=0,signal='test',dur=1):
         for i in range(0,len(ID)-1):
             S[i].stop()
             
+        # no reproduction for <wait seconds>
+        time.sleep(wait)
+            
     else:
         
         # equivalent to previous for single output device
@@ -142,17 +140,20 @@ def play(ID=0,signal='test',dur=1):
         time.sleep(dur)
 
         s.stop()
+        
+        # no reproduction for <wait seconds>
+        time.sleep(wait)
 
 
 # SIMPLE AUDIO REPRODUCTION ROUTINES
-def sequential_reproduction(signal = 'test', duration = 1):
+def sequential_reproduction(signal = 'test', duration = 1, wait=0):
 
     # plays selected audio through all devices individually 
     # in a sequential fashion 
     # ! <duration> in seconds respects to each individual reproduction
 
     for ID in DEVICE_IDS:
-        play(ID, signal, duration)
+        play(ID, signal, duration, wait)
 
 def run_test(test_dur = 30):
 
@@ -217,7 +218,8 @@ if __name__ == "__main__":
                 
         elif str.lower(MODE) == 'custom' or str.lower(MODE) == 'c':
             audiopaths = audio_selection()
-            print(audiopaths)
+            for audio in audiopaths:
+                sequential_reproduction()
             
     else:
         IsADirectoryError("./audio/ folder removed or missing.")
