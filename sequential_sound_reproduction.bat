@@ -24,18 +24,13 @@ if %YN%==yes set YY=true
 if %YN%==Yes set YY=true
 if %YN%==YES set YY=true
 if %YY%==true ( 
-	"%PYTHON_PATH%python.exe" ".\dev\write_device_list.py"	
+	"%PYTHON_PATH%" ".\dev\write_device_list.py"	
 )
 
 rem Prompt user for audio signal / reproduction mode
-set /p MODE="Enter audio signal ([test], [w]hite, [p]ink, [b]rown, [a]ll): "
+set /p MODE="Enter choose audio signal ([test], [c]ustom): "
 
 if [%MODE%]==[] set MODE=test
-
-echo.   
-echo.!READY FOR REPRODUCTION!
-echo.Press any key to begin
-pause >nul
 
 rem Audio reproduction script with user audio mode flag
 "%PYTHON_PATH%" ".\dev\Nspeakers.py" %MODE%
