@@ -29,7 +29,7 @@ import_or_install('pyo')
 import_or_install('configparser')
 
 from pyo import *
-
+import configparser
 
 CONFIG_FILENAME = 'config.ini'
 config_filepath='.\\lib\\'+CONFIG_FILENAME

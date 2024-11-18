@@ -22,16 +22,18 @@ def import_or_install(package):
     try:
         __import__(package)
     except ImportError:
-        pip.main(['install', package]) 
+        pip.main(['install', package])
 
 
 import pip
 import_or_install('pyo')
 import_or_install('termcolor')
+import_or_install('configparser')
 import time
 from pyo import *
 import sys
 from termcolor import cprint
+import configparser
 
 # INITIALIZATION via config file
 def inicio(ini_file='.\lib\config.ini'):
@@ -40,27 +42,29 @@ def inicio(ini_file='.\lib\config.ini'):
     # It reads the audio reproduction mode from the command line call,
     # and the audio reproduction IDs from the defined configurations (.ini) file
     
-    import configparser
-    
     # initialize .ini interpreter and read the file
-    read_config = configparser.ConfigParser() 
+    read_config = configparser.ConfigParser(inline_comment_prefixes="#") 
     read_config.read(ini_file)
 
     # extract output device IDs from the .ini file
     dd = read_config['devices']['device_id'] # string
     data = [int(x) for x in dd.split()] # list of integers
 
+    repro = dict()
+    if read_config['reproduction']['audio_duration']=='':
+        repro["dur"]=0
+    else:
+        repro["dur"]=float(read_config['reproduction']['audio_duration'])
+        
+    if read_config['reproduction']['wait_duration']=='':
+        repro["wait"]=0
+    else:
+        repro["wait"]=float(read_config['reproduction']['wait_duration'])
+
     # 'reproduction mode' from call arguments
     mode = sys.argv[1] 
     mode = mode.lower()
-    return mode,data
-
-##########################################################################################################################################
-#      CONSTANTS
-MODE, DEVICE_IDS = inicio() 
-
-
-##########################################################################################################################################
+    return mode,data,repro
 
 # BASIC OPERATION FUNCTIONS
 def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
@@ -98,8 +102,7 @@ def play(ID=0,signal='test',dur=1, wait=0):
         for id in ID:
 
             # in case of 'test' output, <dir> is relevant for audio reproduction 
-            dir = DEVICE_IDS.index(id)+1
-
+            dir = device_IDs.index(id)+1
             # initialize server
             s = Server(duplex=0,buffersize=256)
             s.setVerbosity(server_verbosity)
@@ -131,7 +134,7 @@ def play(ID=0,signal='test',dur=1, wait=0):
         
         # equivalent to previous for single output device
 
-        dir = DEVICE_IDS.index(ID)+1
+        dir = device_IDs.index(ID)+1
 
         s = Server(duplex=0,buffersize=256)
         s.setVerbosity(server_verbosity)
@@ -141,13 +144,10 @@ def play(ID=0,signal='test',dur=1, wait=0):
 
         num_channels = pa_get_output_max_channels(ID)
         Outp=[]
-        for i in range(0,num_channels):
-            Outp.append( SfPlayer(f, speed=1,loop=True, mul=.8).out(i))
+        Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=.8).out(dur=dur))
        
         s.start()   
         print("Output in device ", dir )    
-
-        time.sleep(dur)
 
         s.stop()
         
@@ -156,13 +156,13 @@ def play(ID=0,signal='test',dur=1, wait=0):
 
 
 # SIMPLE AUDIO REPRODUCTION ROUTINES
-def sequential_reproduction(signal = 'test', duration = 1, wait=0):
+def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]):
 
     # plays selected audio through all devices individually 
     # in a sequential fashion 
     # ! <duration> in seconds respects to each individual reproduction
 
-    for ID in DEVICE_IDS:
+    for ID in device_IDs:
         play(ID, signal, duration, wait)
 
 def run_test(test_dur = 30):
@@ -219,17 +219,21 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
 # MAIN
 #######################################################################################################
 if __name__ == "__main__":
+    
+    mode, device_IDs, repro = inicio()
+
     if os.path.isdir("./audio/"):
-        if str.lower(MODE) == 'test' or str.lower(MODE) == 't' or str.lower(MODE) == '':
+        if str.lower(mode) == 'test' or str.lower(mode) == 't' or str.lower(mode) == '':
             if os.path.isdir("./audio/test/"):
                 run_test()
             else:
                 IsADirectoryError("./audio/test/ folder removed or missing.")
                 
-        elif str.lower(MODE) == 'custom' or str.lower(MODE) == 'c':
+        elif str.lower(mode) == 'custom' or str.lower(mode) == 'c':
             audiopaths = audio_selection()
-            for audio in audiopaths:
-                sequential_reproduction()
             
+            for audio in audiopaths:
+                sequential_reproduction(signal=audio, duration=repro["dur"], wait=repro["wait"], device_IDs=device_IDs)
+
     else:
         IsADirectoryError("./audio/ folder removed or missing.")
