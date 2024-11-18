@@ -21,6 +21,7 @@
 import time
 from pyo import *
 import sys
+from termcolor import cprint
 
 # INITIALIZATION via config file
 def inicio(ini_file='.\lib\config.ini'):
@@ -153,16 +154,6 @@ def sequential_reproduction(signal = 'test', duration = 1):
     for ID in DEVICE_IDS:
         play(ID, signal, duration)
 
-def play_all_devices(signal='BN', duration = 1):
-
-    # NOT YET IMPLEMENTED: Portaudio parallel reproduction likely not possible
-    # future option: set ASIO4ALL as output device and connect multiple outputs to the ASIO driver
-
-
-    # plays selected audio on all output devices at the same time 
-
-    play(DEVICE_IDS, signal, duration)
-
 def run_test(test_dur = 30):
 
     # test reproduction
@@ -177,27 +168,56 @@ def run_test(test_dur = 30):
         sequential_reproduction()
 
 
+def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
 
+    print("current directory: \' "+audio_folder+"\\ \'")
+    print("Select audio file by writing the corresponding index number from the list below.\n" +
+            "You may select multiple files to be played sequentially\n"+
+            "by writing their indices in order separated by spaces.\n\n")
 
+    # loop over subfolders
+    for i,entry in enumerate(os.listdir(audio_folder)):
+        outstr = "[" + str(i) + "] - " + entry
+        outstr += (50-len(outstr))*" "
+        if os.path.isdir(os.path.join(audio_folder,entry)):
+            outstr += "(sub-directory)"
+        elif os.path.isfile(os.path.join(audio_folder,entry)) and (entry.endswith(".wav") or entry.endswith(".mp3")):
+            outstr += "(audio file)"
+        else:
+            outstr += "[UNSUPPORTED FORMAT]"
+            
+        print(outstr)
+        
+    inp = input("\n\nDesired input audio:")
+    
+    klist = [int(k) for k in inp.split()]
+    for k in klist:
+        if k >= len(os.listdir(audio_folder)):
+            audiopath = audio_selection(audio_folder)
+        else:
+            if os.path.isfile(os.path.join(audio_folder, os.listdir(audio_folder)[k])):
+                audiopath.append( os.path.join(audio_folder, os.listdir(audio_folder)[k]))
+            elif os.path.isdir(os.path.join(audio_folder, os.listdir(audio_folder)[k])):
+                audiopath = audio_selection(audio_folder=os.path.join(audio_folder, os.listdir(audio_folder)[k]), audiopath=audiopath)
+            
+    return audiopath
+            
+        
+    
 #######################################################################################################
 # MAIN
 #######################################################################################################
-if MODE == 'test' or MODE == 't':
-    run_test()
-elif MODE == 'white' or MODE == 'w':
-    print("\nSequential reproduction -- white noise")
-    sequential_reproduction('WN',3)
-elif MODE == 'pink' or MODE == 'p':
-    print("\nSequential reproduction -- pink noise")
-    sequential_reproduction('PN',3)
-elif MODE == 'brown' or MODE == 'b':
-    print("\nSequential reproduction -- brown noise")
-    sequential_reproduction('BN',3)
-elif MODE == 'all' or MODE == 'a':
-    print("\nSequential reproduction -- white noise")
-    sequential_reproduction('WN',3)
-    print("\nSequential reproduction -- pink noise")
-    sequential_reproduction('PN',3)
-    print("\nSequential reproduction -- brown noise")
-    sequential_reproduction('BN',3)
-
+if __name__ == "__main__":
+    if os.path.isdir("./audio/"):
+        if str.lower(MODE) == 'test' or str.lower(MODE) == 't' or str.lower(MODE) == '':
+            if os.path.isdir("./audio/test/"):
+                run_test()
+            else:
+                IsADirectoryError("./audio/test/ folder removed or missing.")
+                
+        elif str.lower(MODE) == 'custom' or str.lower(MODE) == 'c':
+            audiopaths = audio_selection()
+            print(audiopaths)
+            
+    else:
+        IsADirectoryError("./audio/ folder removed or missing.")
