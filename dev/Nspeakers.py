@@ -17,7 +17,16 @@
 # Contact: joao.garrettfatela@unicampania.it
 # Dipartimento di Architettura e Disegno Industriale, Università degli Studi della Campania 'Luigi Vanvitelli'
 # 4.4.2023
+def import_or_install(package):
+    try:
+        __import__(package)
+    except ImportError:
+        pip.main(['install', package]) 
 
+
+import pip
+import_or_install('pyo')
+import_or_install('termcolor')
 import time
 from pyo import *
 import sys
@@ -171,7 +180,7 @@ def run_test(test_dur = 30):
 
 def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
 
-    print("current directory: \' "+audio_folder+"\\ \'")
+    cprint("current directory: \' "+audio_folder+"\\ \'",'yellow')
     print("Select audio file by writing the corresponding index number from the list below.\n" +
             "You may select multiple files to be played sequentially\n"+
             "by writing their indices in order separated by spaces.\n\n")
