@@ -16,7 +16,7 @@
 # Author: João Fatela 
 # Contact: joao.garrettfatela@unicampania.it
 # Dipartimento di Architettura e Disegno Industriale, Università degli Studi della Campania 'Luigi Vanvitelli'
-# 4.4.2023
+# 18.11.2024
 def import_or_install(package):
     try:
         __import__(package)
