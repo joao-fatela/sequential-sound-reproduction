@@ -38,7 +38,7 @@ echo.Press any key to begin
 pause >nul
 
 rem Audio reproduction script with user audio mode flag
-"%PYTHON_PATH%python.exe" ".\dev\Nspeakers.py" %MODE%
+"%PYTHON_PATH%" ".\dev\Nspeakers.py" %MODE%
 
 echo. Audio reproduction is finished. Press any key to close window.
 pause >nul
