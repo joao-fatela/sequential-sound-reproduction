@@ -49,6 +49,8 @@ read_config.read(config_filepath)
 # temporarily storing data that may be deleted upon writing on config file
 python_path = read_config['paths']['python_path']
 
+#TO DO store also reproduction settings
+repro = read_config['reproduction']
 # parser for writing on config file
 write_config = configparser.ConfigParser()
 
@@ -56,6 +58,7 @@ write_config['paths'] = {}
 write_config['paths']['python_path'] = python_path.strip()
 write_config['devices'] = {}
 write_config['devices']['device_id'] = IDs.strip()
+write_config['reproduction']=repro
 
 # rewriting new device list and rewriting other config data
 with open(config_filepath, 'w') as configfile:
