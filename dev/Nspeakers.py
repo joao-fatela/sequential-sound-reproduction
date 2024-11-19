@@ -51,12 +51,12 @@ def inicio(ini_file='.\lib\config.ini'):
     data = [int(x) for x in dd.split()] # list of integers
 
     repro = dict()
-    if read_config['reproduction']['audio_duration']=='':
-        repro["dur"]=0
+    if not read_config['reproduction']['audio_duration'].isnumeric():
+        repro["dur"]=1
     else:
         repro["dur"]=float(read_config['reproduction']['audio_duration'])
         
-    if read_config['reproduction']['wait_duration']=='':
+    if not read_config['reproduction']['wait_duration'].isnumeric():
         repro["wait"]=0
     else:
         repro["wait"]=float(read_config['reproduction']['wait_duration'])
@@ -144,11 +144,12 @@ def play(ID=0,signal='test',dur=1, wait=0):
 
         num_channels = pa_get_output_max_channels(ID)
         Outp=[]
-        Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=.8).out(dur=dur))
+        Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=.8).out())
        
         s.start()   
         print("Output in device ", dir )    
-
+        # hold reproduction for <dur seconds>
+        time.sleep(dur)
         s.stop()
         
         # no reproduction for <wait seconds>
