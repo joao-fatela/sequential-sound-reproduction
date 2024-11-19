@@ -114,7 +114,7 @@ def play(ID=0,signal='test',dur=1, wait=0):
             num_channels = pa_get_output_max_channels(ID)
             Outp=[]
             for i in range(0,num_channels):
-                Outp.append( SfPlayer(f, speed=1,loop=True, mul=.8).out(i))
+                Outp.append( SfPlayer(f, speed=1,loop=True, mul=1.).out(i))
             s.start()   # !reproduction of multiple sources not perfectly synchronized!
 
             # append server to list of servers
@@ -144,7 +144,7 @@ def play(ID=0,signal='test',dur=1, wait=0):
 
         num_channels = pa_get_output_max_channels(ID)
         Outp=[]
-        Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=.8).out())
+        Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=1.).out())
        
         s.start()   
         print("Output in device ", dir )    
