@@ -86,6 +86,16 @@ Its operation is described below.
 	- Any signals or subdirectories can be selected by choosing the correct signal index in the menu.
 	- Multiple audios can be played in sequence by writing multiple indices separated by empty spaces.
 
+**warning**: the audio file and device loop have a fixed hierarchy. Each audio loops through all devices in the sequence before the next audio is played. The audio duration and wait times is fixed, set in the configuration file. See below.
+
+	 for each audio_file {
+			for each output_device{
+				play_audio( audio_file , output_device)
+				# with constant audio duration and wait times
+			}
+	 }
+
+
 ### .\lib\ config.ini
 Configuration file. Stores relevant information for the correct operation of the audio reproduction routine.
 - `[paths]`
@@ -125,4 +135,4 @@ Audio file library for the Nspeakers.py routines.
 Audio clip of TTS voice enunciating the [number] in the filename. Relevant for numbering the output devices in the 'test' routine of `.\dev\Nspeakers.py`.
 
 
-This library can be freely expanded by adding .mp3 or .wav files to the `.\audio\` folder. Creation of subfolders are also supported.
+This library can be freely expanded by adding .mp3 or .wav files to the `.\audio\` folder. Creation of subfolders is also supported.
