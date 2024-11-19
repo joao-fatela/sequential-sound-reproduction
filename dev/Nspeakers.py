@@ -166,7 +166,7 @@ def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]
     for ID in device_IDs:
         play(ID, signal, duration, wait)
 
-def run_test(test_dur = 30):
+def run_test(test_dur = 30, device_IDs=[]):
 
     # test reproduction
     # good for identifying speakers 
@@ -177,7 +177,7 @@ def run_test(test_dur = 30):
     timeout = time.time() + test_dur
  
     while time.time() < timeout:
-        sequential_reproduction()
+        sequential_reproduction(device_IDs=device_IDs)
 
 
 def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     if os.path.isdir("./audio/"):
         if str.lower(mode) == 'test' or str.lower(mode) == 't' or str.lower(mode) == '':
             if os.path.isdir("./audio/test/"):
-                run_test()
+                run_test(device_IDs=device_IDs)
             else:
                 IsADirectoryError("./audio/test/ folder removed or missing.")
                 
