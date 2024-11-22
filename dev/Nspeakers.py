@@ -216,15 +216,19 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
 
     inp = input("\nDesired input audio:")
     
-    klist = [int(k) for k in inp.split()]
+    klist = [k for k in inp.split()]
     for k in klist:
-        if k >= len(os.listdir(audio_folder)):
-            audiopath = audio_selection(audio_folder)
+        if k.isnumeric():
+            k=int(k)
+            if k >= len(paths):
+                audiopath = audio_selection(audio_folder)
+            else:
+                if os.path.isfile( paths[k] ):
+                    audiopath.append( paths[k] )
+                elif os.path.isdir( paths[k] ):
+                    audiopath = audio_selection(audio_folder=paths[k], audiopath=audiopath)
         else:
-            if os.path.isfile( paths[k] ):
-                audiopath.append( paths[k] )
-            elif os.path.isdir( paths[k] ):
-                audiopath = audio_selection(audio_folder=paths[k], audiopath=audiopath)
+            audiopath = audio_selection(audio_folder)
             
     return audiopath
             
