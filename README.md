@@ -25,10 +25,11 @@ Università degli Studi della Campania *Luigi Vanvitelli*
 
 
 # GETTING STARTED:
-### Prerequisites:
+### Requirements:
 - Machine with active [Portaudio](http://www.portaudio.com/) driver 
 - Python (3.9<=version<=3.11) environment with 
 	- [pyo](https://pypi.org/project/pyo/)
+	- [wxPython](https://pypi.org/project/wxPython/)
 	- [configparser](https://pypi.org/project/configparser/) 
 	- [termcolor](https://pypi.org/project/termcolor/libraries)
 
