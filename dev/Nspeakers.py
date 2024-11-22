@@ -188,7 +188,7 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
 
     cprint("\nSelect audio file by writing the corresponding index number from the list below.",attrs=["bold"])
     cprint("You may select multiple files to be played sequentially\n"+
-            "by writing their indices in order separated by spaces.\n",attrs=["dark"])
+            "by writing their indices in order separated by spaces.\n",'dark_grey')
     cprint("current directory: \' "+audio_folder+"\\ \'",'yellow',attrs=["dark"])
     print(" ")
     # loop over subfolders
@@ -201,9 +201,8 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
             outstr += "(sub-directory)"
             counter += 1
             paths.append(os.path.join(audio_folder,entry))
-            
-            cprint(outstr,'light_yellow')
-        
+            cprint(outstr,'yellow')
+    
     for entry in os.listdir(audio_folder):
         outstr = "[" + str(counter) + "] - " + entry
         outstr += (40-len(outstr))*" "
@@ -212,9 +211,13 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
             counter += 1
             paths.append(os.path.join(audio_folder,entry))
             cprint(outstr,'green')
-        elif not os.path.isdir(os.path.join(audio_folder,entry)):
+    
+    for entry in os.listdir(audio_folder):
+        if not os.path.isdir(os.path.join(audio_folder,entry)) and not (entry.endswith(".wav") or entry.endswith(".mp3")):
+            outstr = "[*] - " + entry
+            outstr += (40-len(outstr))*" "
             outstr += "[UNSUPPORTED FORMAT]"
-            cprint(outstr,'light_red')
+            cprint(outstr,'red')
         
 
     inp = input("\nDesired input audio:")
