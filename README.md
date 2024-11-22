@@ -86,7 +86,7 @@ Its operation is described below.
 	- Any signals or subdirectories can be selected by choosing the correct signal index in the menu.
 	- Multiple audios can be played in sequence by writing multiple indices separated by empty spaces.
 
-**warning**: the audio file and device loop have a fixed hierarchy. Each audio loops through all devices in the sequence before the next audio is played. The audio duration and wait times is fixed, set in the configuration file. See below.
+**warning**: the audio file and device loop have a fixed hierarchy. Each audio loops through all devices in the sequence before the next audio is played. The audio duration and wait times is fixed, set in the configuration file. See pseudocode below.
 
 	 for each audio_file {
 			for each output_device{
