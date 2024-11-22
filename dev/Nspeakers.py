@@ -19,11 +19,13 @@ from termcolor import cprint
 
 
 def inicio(ini_file='.\lib\config.ini'):
+    """
+    Initialize reproduction parameters after config.ini file.
 
-    # initializes the sound distribution main functions
-    # It reads the audio reproduction mode from the command line call,
-    # and the audio reproduction IDs from the defined configurations (.ini) file
-    
+    Reads the audio reproduction mode from the command line call,
+    and the audio reproduction IDs from the defined configurations (.ini) file.
+
+    """
     # initialize .ini interpreter and read the file
     read_config = configparser.ConfigParser(inline_comment_prefixes="#") 
     read_config.read(ini_file)
@@ -50,12 +52,14 @@ def inicio(ini_file='.\lib\config.ini'):
 
 # BASIC OPERATION FUNCTIONS
 def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
-    
-    # selects audio file from audio library in <folder> directory
-    # default file name formatting in directory '<signal>.wav'
-    # special exception if signal == 'test'
-    # see examples in default directory .\audio\
+    """
+    Select audio file from audio library in input directory.
 
+    Default file name formatting in directory '<signal>.wav'
+    special exception if signal == 'test'
+    see examples in default audio directory. 
+
+    """
     if signal == 'test':
         # selects audio file from '.\<folder>\test\' subfolder
         # audio is a number assigned to output device ID ([dir] ection)
@@ -68,12 +72,10 @@ def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
     return file
         
 def play(ID=0,signal='test',dur=1, wait=0):
+    """
+    Reproduce a single signal for a fixed duration and device.
 
-    # reproduces a single signal given <signal> flag 
-    # for duration of <dur> seconds
-    # on output device(s) with Portaudio ID number <ID> 
-    # ID can be an integer (single device) [or a list of integers (multiple devices at same time) NOT IMPLEMENTED]
-
+    """
     server_verbosity = 1
 
     # initialize list of servers
@@ -140,23 +142,22 @@ def play(ID=0,signal='test',dur=1, wait=0):
 
 # SIMPLE AUDIO REPRODUCTION ROUTINES
 def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]):
-
-    # plays selected audio through all devices individually 
-    # in a sequential fashion 
-    # ! <duration> in seconds respects to each individual reproduction
+    """
+    Play selected audio through list of devices sequentially
     
+    """
     cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
     for ID in device_IDs:
         play(ID, signal, duration, wait)
 
 def run_test(test_dur = 30, device_IDs=[]):
-
-    # test reproduction
-    # good for identifying speakers 
-    # and placing them spatially / correcting order of ID list
-
-    # plays output device ID on each device sequentially for 30 seconds
-
+    """
+    Run special reproduction test routine.
+    
+    For a given duration, the devices play audio which assigns them 
+    with a unique audio identifier.
+    
+    """
     timeout = time.time() + test_dur
  
     while time.time() < timeout:
@@ -164,7 +165,10 @@ def run_test(test_dur = 30, device_IDs=[]):
 
 
 def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
+    """
+    Prints compatible files and dirs, and stores user selection.
 
+    """
     cprint("\nSelect audio file by writing the corresponding index number from the list below.",attrs=["bold"])
     cprint("You may select multiple files to be played sequentially\n"+
             "by writing their indices in order separated by spaces.\n",'dark_grey')
