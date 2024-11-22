@@ -1,44 +1,23 @@
-# Nspeakers.py
-# 
-# This program reproduces audio through a set of (N) speakers connected to the computer with the Portaudio driver. 
-# Speakers are defined by a list of audio reproduction IDs (in an associated .ini file, or defined by user in a constant)
-# and a reproduction mode set as a string argument to the python program call.
-#
-# Dependencies on the pyo (https://pypi.org/project/pyo/) and configparser (https://pypi.org/project/configparser/) libraries
-# NOTE: dependency on pyo requires python<=3.10
-#
-# This program was designed with a specific procedure in mind. Hence, it is not optimized for uses outside basic reproduction modes.
-# It can, however, be changed to suit any of the user's needs: basic functions for simple reproduction routines are provided
-# and can be combined for a specific use. User-input audio sources are also supported.
-#
-# This program is not resilient to user errors and should be taken on an as-is-basis.
-# Maintenance is not guaranteed.
-#
-# Author: João Fatela 
-# Contact: joao.garrettfatela@unicampania.it
-# Dipartimento di Architettura e Disegno Industriale, Università degli Studi della Campania 'Luigi Vanvitelli'
-# 22.11.2024
-def import_or_install(package):
-    try:
-        __import__(package)
-    except ImportError:
-        os.system('python -m pip install '+ package+ '| grep -v \'already satisfied\'')
+"""
+This program reproduces audio through a set of (N) speakers connected to the computer with the Portaudio driver. 
+Speakers are defined by a list of audio reproduction IDs (in an associated config.ini file)
+and a reproduction mode set as a string argument to the python program call.
 
+Author: João Fatela 
+Contact: joao.garrettfatela@unicampania.it
+Dipartimento di Architettura e Disegno Industriale, Università degli Studi della Campania 'Luigi Vanvitelli'
+22.11.2024
+"""
+
+from pyo import pa_get_output_max_channels
 import os
-
-import_or_install('wxPython')
-import_or_install('pyo')
-import_or_install('termcolor')
-import_or_install('configparser')
-
+import configparser
 import time
-from pyo import *
+from pyo import Server, SfPlayer
 import sys
 from termcolor import cprint
-import configparser
 
 
-# INITIALIZATION via config file
 def inicio(ini_file='.\lib\config.ini'):
 
     # initializes the sound distribution main functions
@@ -99,7 +78,7 @@ def play(ID=0,signal='test',dur=1, wait=0):
 
     # initialize list of servers
     S = []
-    if type(ID)==list:
+    if type(ID) is list:
         # multiple output devices
         for id in ID:
 
