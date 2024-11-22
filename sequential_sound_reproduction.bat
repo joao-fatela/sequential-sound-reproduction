@@ -1,5 +1,5 @@
 @echo off
-title run_experiment
+title Sequential audio reproduction
 
 rem Configuration file name and directory
 set CONFIG_FILE=config.ini
@@ -9,6 +9,10 @@ rem Reading python path from configuration file
 for /f "tokens=1,2 delims== " %%a in (%CONFIG_DIR%%CONFIG_FILE%) do (
 	if %%a==python_path set PYTHON_PATH=%%b
 )
+
+rem force quiet dependency install
+echo.Checking/installing dependencies...
+"%PYTHON_PATH%" -m pip install -q -r requirements.txt
 
 rem prompt user to define output device ID list
 set /p YN="Set audio device ID list? (Y/[N]): "
