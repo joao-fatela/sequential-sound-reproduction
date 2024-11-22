@@ -27,8 +27,10 @@ import os
 import_or_install('wxPython')
 import_or_install('pyo')
 import_or_install('configparser')
+import_or_install('termcolor')
 from pyo import *
 import configparser
+from termcolor import cprint
 
 CONFIG_FILENAME = 'config.ini'
 config_filepath='.\\lib\\'+CONFIG_FILENAME
@@ -38,7 +40,7 @@ print("\n\n\n")
 pa_list_devices()
 
 #user prompt
-print("\n\n!READ THE LIST ABOVE CAREFULLY!")
+cprint("\n\n!READ THE LIST ABOVE CAREFULLY!",'yellow')
 print("You will be prompted for the ID# of the desired audio output devices.\n\n")
 IDs = input("Enter audio device IDs separated by spaces: ") # ! not resilient to misspellings/wrong input
 

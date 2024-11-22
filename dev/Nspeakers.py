@@ -99,7 +99,6 @@ def play(ID=0,signal='test',dur=1, wait=0):
 
     # initialize list of servers
     S = []
-
     if type(ID)==list:
         # multiple output devices
         for id in ID:
@@ -149,8 +148,9 @@ def play(ID=0,signal='test',dur=1, wait=0):
         Outp=[]
         Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=1.).out())
        
-        s.start()   
-        print("Output in device ", dir )    
+        s.start()  
+
+        cprint("    - Device " + str(dir) , 'light_cyan')    
         # hold reproduction for <dur seconds>
         time.sleep(dur)
         s.stop()
@@ -165,7 +165,8 @@ def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]
     # plays selected audio through all devices individually 
     # in a sequential fashion 
     # ! <duration> in seconds respects to each individual reproduction
-
+    
+    cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
     for ID in device_IDs:
         play(ID, signal, duration, wait)
 
@@ -185,10 +186,10 @@ def run_test(test_dur = 30, device_IDs=[]):
 
 def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
 
-    cprint("Select audio file by writing the corresponding index number from the list below.",attrs=["bold"])
+    cprint("\nSelect audio file by writing the corresponding index number from the list below.",attrs=["bold"])
     cprint("You may select multiple files to be played sequentially\n"+
             "by writing their indices in order separated by spaces.\n",attrs=["dark"])
-    cprint("current directory: \' "+audio_folder+"\\ \'",'light_yellow','on_dark_grey')
+    cprint("current directory: \' "+audio_folder+"\\ \'",'yellow',attrs=["dark"])
     print(" ")
     # loop over subfolders
     counter = 0
