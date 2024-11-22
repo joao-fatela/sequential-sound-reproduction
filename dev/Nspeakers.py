@@ -79,65 +79,29 @@ def play(ID=0,signal='test',dur=1, wait=0):
     server_verbosity = 1
 
     # initialize list of servers
-    S = []
-    if type(ID) is list:
-        # multiple output devices
-        for id in ID:
+    
+    # equivalent to previous for single output device
 
-            # in case of 'test' output, <dir> is relevant for audio reproduction 
-            dir = device_IDs.index(id)+1
-            # initialize server
-            s = Server(duplex=0,buffersize=256)
-            s.setVerbosity(server_verbosity)
-            s.setOutputDevice(id)
-            s.boot()
-            f=select_audio_file(dir,signal) 
+    dir = device_IDs.index(ID)+1
 
-            # output channel definition
-            num_channels = pa_get_output_max_channels(ID)
-            Outp=[]
-            for i in range(0,num_channels):
-                Outp.append( SfPlayer(f, speed=1,loop=True, mul=1.).out(i))
-            s.start()   # !reproduction of multiple sources not perfectly synchronized!
+    s = Server(duplex=0,buffersize=256)
+    s.setVerbosity(server_verbosity)
+    s.setOutputDevice(ID)
+    s.boot()
+    f=select_audio_file(dir,signal) 
 
-            # append server to list of servers
-            S.append(s)
+    num_channels = pa_get_output_max_channels(ID)
+    Outp=[]
+    Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=1.).out())
+    
+    s.start()  
 
-        # hold reproduction for <dur seconds>
-        time.sleep(dur)
-
-        # stop audio reproduction
-        for i in range(0,len(ID)-1):
-            S[i].stop()
-            
-        # no reproduction for <wait seconds>
-        time.sleep(wait)
-            
-    else:
-        
-        # equivalent to previous for single output device
-
-        dir = device_IDs.index(ID)+1
-
-        s = Server(duplex=0,buffersize=256)
-        s.setVerbosity(server_verbosity)
-        s.setOutputDevice(ID)
-        s.boot()
-        f=select_audio_file(dir,signal) 
-
-        num_channels = pa_get_output_max_channels(ID)
-        Outp=[]
-        Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=1.).out())
-       
-        s.start()  
-
-        cprint("    - Device " + str(dir) , 'light_cyan')    
-        # hold reproduction for <dur seconds>
-        time.sleep(dur)
-        s.stop()
-        
-        # no reproduction for <wait seconds>
-        time.sleep(wait)
+    cprint("    - Device " + str(dir) , 'light_cyan')    
+    # hold reproduction for <dur seconds>
+    time.sleep(dur)
+    s.stop()
+    # no reproduction for <wait seconds>
+    time.sleep(wait)
 
 
 # SIMPLE AUDIO REPRODUCTION ROUTINES
