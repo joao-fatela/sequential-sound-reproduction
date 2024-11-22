@@ -9,11 +9,12 @@ Dipartimento di Architettura e Disegno Industriale, Università degli Studi dell
 22.11.2024
 """
 
-from pyo import pa_get_output_max_channels
+
 import os
 import configparser
 import time
-from pyo import Server, SfPlayer
+import soundfile as sf
+import sounddevice as sd
 import sys
 from termcolor import cprint
 
@@ -76,7 +77,6 @@ def play(ID=0,signal='test',dur=1, wait=0):
     Reproduce a single signal for a fixed duration and device.
 
     """
-    server_verbosity = 1
 
     # initialize list of servers
     
@@ -84,25 +84,25 @@ def play(ID=0,signal='test',dur=1, wait=0):
 
     dir = device_IDs.index(ID)+1
 
-    s = Server(duplex=0,buffersize=256)
-    s.setVerbosity(server_verbosity)
-    s.setOutputDevice(ID)
-    s.boot()
-    f=select_audio_file(dir,signal) 
-
-    num_channels = pa_get_output_max_channels(ID)
-    Outp=[]
-    Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=1.).out())
     
-    s.start()  
+    f=select_audio_file(dir,signal) 
+    data, fs = sf.read(f)
+    sd.play(data, fs)
+    sd.wait()
+    
 
-    cprint("    - Device " + str(dir) , 'light_cyan')    
-    # hold reproduction for <dur seconds>
-    time.sleep(dur)
-    s.stop()
-    # no reproduction for <wait seconds>
-    time.sleep(wait)
+def preload_server(IDs=[]):
 
+    cprint("Loading audio servers...")
+
+    serverlist = []
+
+    for i in range(len(IDs)):
+        s = Server(duplex=0,buffersize=256, nchnls=pa_get_output_max_channels(IDs[i]))
+        s.setOutputDevice(IDs[i])
+        s.boot()
+        serverlist.append(s)
+    return serverlist
 
 # SIMPLE AUDIO REPRODUCTION ROUTINES
 def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]):
@@ -110,9 +110,11 @@ def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]
     Play selected audio through list of devices sequentially
     
     """
+    serverlist = preload_server(device_IDs)
+
     cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
-    for ID in device_IDs:
-        play(ID, signal, duration, wait)
+    for i,ID in enumerate(device_IDs):
+        play(ID, signal, duration, wait, serverlist[i])
 
 def run_test(test_dur = 30, device_IDs=[]):
     """
