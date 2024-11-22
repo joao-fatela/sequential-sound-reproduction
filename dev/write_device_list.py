@@ -12,20 +12,37 @@ Dipartimento di Architettura e Disegno Industriale, Università degli Studi dell
 22.11.2024
 """
 import configparser
-from pyo import pa_list_devices
+import sounddevice as sd
 from termcolor import cprint
+
+def print_output_devices():
+
+    colors=["white","dark_grey"]
+
+    dictlist = sd.query_devices()
+
+    for elem in dictlist:
+        if elem["max_output_channels"] != 0:
+            string = "[" + str(elem["index"]) + "]"
+            string += (5-len(string))*" "+" - " + elem["name"] 
+            string += (50-len(string))*" " + " | " + sd.query_hostapis(elem["hostapi"])['name']
+            string += (75-len(string))*" " + " | sr: " + str(elem["default_samplerate"]) + "; lat: " + str(elem["default_low_output_latency"])
+
+            cprint(string, colors[elem["hostapi"]%2])
 
 def main():
     CONFIG_FILENAME = 'config.ini'
     config_filepath='.\\lib\\'+CONFIG_FILENAME
 
     # listing devices connected through portaudio
-    print("\n\n\n")
-    pa_list_devices()
+    print("\n")
 
+    print_output_devices()
+
+
+    
     #user prompt
     cprint("\n\n!READ THE LIST ABOVE CAREFULLY!",'yellow')
-    print("You will be prompted for the ID# of the desired audio output devices.\n\n")
     IDs = input("Enter audio device IDs separated by spaces: ") # ! not resilient to misspellings/wrong input
 
     # reading the config file data
