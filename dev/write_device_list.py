@@ -13,39 +13,43 @@ Dipartimento di Architettura e Disegno Industriale, Università degli Studi dell
 """
 import configparser
 from pyo import pa_list_devices
-import configparser
 from termcolor import cprint
 
-CONFIG_FILENAME = 'config.ini'
-config_filepath='.\\lib\\'+CONFIG_FILENAME
+def main():
+    CONFIG_FILENAME = 'config.ini'
+    config_filepath='.\\lib\\'+CONFIG_FILENAME
 
-# listing devices connected through portaudio
-print("\n\n\n")
-pa_list_devices()
+    # listing devices connected through portaudio
+    print("\n\n\n")
+    pa_list_devices()
 
-#user prompt
-cprint("\n\n!READ THE LIST ABOVE CAREFULLY!",'yellow')
-print("You will be prompted for the ID# of the desired audio output devices.\n\n")
-IDs = input("Enter audio device IDs separated by spaces: ") # ! not resilient to misspellings/wrong input
+    #user prompt
+    cprint("\n\n!READ THE LIST ABOVE CAREFULLY!",'yellow')
+    print("You will be prompted for the ID# of the desired audio output devices.\n\n")
+    IDs = input("Enter audio device IDs separated by spaces: ") # ! not resilient to misspellings/wrong input
 
-# reading the config file data
-read_config = configparser.ConfigParser()
-read_config.read(config_filepath)
+    # reading the config file data
+    read_config = configparser.ConfigParser()
+    read_config.read(config_filepath)
 
-# temporarily storing data that may be deleted upon writing on config file
-python_path = read_config['paths']['python_path']
+    # temporarily storing data that may be deleted upon writing on config file
+    python_path = read_config['paths']['python_path']
 
-#TO DO store also reproduction settings
-repro = read_config['reproduction']
-# parser for writing on config file
-write_config = configparser.ConfigParser()
 
-write_config['paths'] = {}
-write_config['paths']['python_path'] = python_path.strip()
-write_config['devices'] = {}
-write_config['devices']['device_id'] = IDs.strip()
-write_config['reproduction']=repro
+    repro = read_config['reproduction']
 
-# rewriting new device list and rewriting other config data
-with open(config_filepath, 'w') as configfile:
-  write_config.write(configfile)
+    # parser for writing on config file
+    write_config = configparser.ConfigParser()
+
+    write_config['paths'] = {}
+    write_config['paths']['python_path'] = python_path.strip()
+    write_config['devices'] = {}
+    write_config['devices']['device_id'] = IDs.strip()
+    write_config['reproduction']=repro
+
+    # rewriting new device list and rewriting other config data
+    with open(config_filepath, 'w') as configfile:
+        write_config.write(configfile)
+
+if __name__ == "__main__":
+    main()
