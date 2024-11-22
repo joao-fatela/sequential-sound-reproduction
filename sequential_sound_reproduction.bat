@@ -11,6 +11,7 @@ for /f "tokens=1,2 delims== " %%a in (%CONFIG_DIR%%CONFIG_FILE%) do (
 )
 
 rem force quiet dependency install
+echo.Checking/installing dependencies...
 "%PYTHON_PATH%" -m pip install -q -r requirements.txt
 
 rem prompt user to define output device ID list

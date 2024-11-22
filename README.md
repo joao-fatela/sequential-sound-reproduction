@@ -27,13 +27,14 @@ Università degli Studi della Campania *Luigi Vanvitelli*
 # GETTING STARTED:
 ### Requirements:
 - Machine with active [Portaudio](http://www.portaudio.com/) driver 
-- Python (3.9<=version<=3.11) environment with 
+- Python (**version <ins>3.10 or 3.11</ins>**) environment with 
 	- [pyo](https://pypi.org/project/pyo/)
 	- [wxPython](https://pypi.org/project/wxPython/)
 	- [configparser](https://pypi.org/project/configparser/) 
 	- [termcolor](https://pypi.org/project/termcolor/libraries)
 
-in case of absence of any of these libraries, an automated routine will attempt to install them before the program is run.
+Generally, an automated routine will attempt to install them before the program is run.
+If you wish to run the program with a different python distribution, you can install these dependencies manually and remove lines 13-15 of `sequential_sound_reproduction.bat`
 
 **Notice for basic users:**
 ! _Do not change folder and file structure or file names_ !
