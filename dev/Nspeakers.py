@@ -231,13 +231,13 @@ if __name__ == "__main__":
     mode, device_IDs, repro = inicio()
 
     if os.path.isdir("./audio/"):
-        if str.lower(mode) == 'test' or str.lower(mode) == 't' or str.lower(mode) == '':
+        if str.lower(mode) == 'test' or str.lower(mode) == 't':
             if os.path.isdir("./audio/test/"):
                 run_test(device_IDs=device_IDs)
             else:
                 IsADirectoryError("./audio/test/ folder removed or missing.")
                 
-        elif str.lower(mode) == 'custom' or str.lower(mode) == 'c':
+        elif str.lower(mode) == 'custom' or str.lower(mode) == 'c' or mode == '':
             audiopaths = audio_selection()
             
             for audio in audiopaths:

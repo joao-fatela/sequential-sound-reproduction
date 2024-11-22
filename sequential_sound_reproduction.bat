@@ -34,7 +34,7 @@ if %YY%==true (
 
 echo.
 rem Prompt user for audio signal / reproduction mode
-set /p MODE="Choose audio routine [T]EST / [c]ustom: "
+set /p MODE="Choose audio routine [C]USTOM / [t]est: "
 
 if [%MODE%]==[] set MODE=test
 
