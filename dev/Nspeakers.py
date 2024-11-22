@@ -34,6 +34,7 @@ from pyo import *
 import sys
 from termcolor import cprint
 import configparser
+import os
 
 # INITIALIZATION via config file
 def inicio(ini_file='.\lib\config.ini'):
@@ -182,35 +183,48 @@ def run_test(test_dur = 30, device_IDs=[]):
 
 def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
 
-    cprint("current directory: \' "+audio_folder+"\\ \'",'yellow')
-    print("Select audio file by writing the corresponding index number from the list below.\n" +
-            "You may select multiple files to be played sequentially\n"+
-            "by writing their indices in order separated by spaces.\n\n")
-
+    cprint("Select audio file by writing the corresponding index number from the list below.",attrs=["bold"])
+    cprint("You may select multiple files to be played sequentially\n"+
+            "by writing their indices in order separated by spaces.\n",attrs=["dark"])
+    cprint("current directory: \' "+audio_folder+"\\ \'",'light_yellow','on_dark_grey')
+    print(" ")
     # loop over subfolders
-    for i,entry in enumerate(os.listdir(audio_folder)):
-        outstr = "[" + str(i) + "] - " + entry
-        outstr += (50-len(outstr))*" "
+    counter = 0
+    paths = []
+    for entry in os.listdir(audio_folder):
+        outstr = "[" + str(counter) + "] - " + entry
+        outstr += (40-len(outstr))*" "
         if os.path.isdir(os.path.join(audio_folder,entry)):
             outstr += "(sub-directory)"
-        elif os.path.isfile(os.path.join(audio_folder,entry)) and (entry.endswith(".wav") or entry.endswith(".mp3")):
-            outstr += "(audio file)"
-        else:
-            outstr += "[UNSUPPORTED FORMAT]"
+            counter += 1
+            paths.append(os.path.join(audio_folder,entry))
             
-        print(outstr)
+            cprint(outstr,'light_yellow')
         
-    inp = input("\n\nDesired input audio:")
+    for entry in os.listdir(audio_folder):
+        outstr = "[" + str(counter) + "] - " + entry
+        outstr += (40-len(outstr))*" "
+        if os.path.isfile(os.path.join(audio_folder,entry)) and (entry.endswith(".wav") or entry.endswith(".mp3")):
+            outstr += "(audio file)"
+            counter += 1
+            paths.append(os.path.join(audio_folder,entry))
+            cprint(outstr,'green')
+        elif not os.path.isdir(os.path.join(audio_folder,entry)):
+            outstr += "[UNSUPPORTED FORMAT]"
+            cprint(outstr,'light_red')
+        
+
+    inp = input("\nDesired input audio:")
     
     klist = [int(k) for k in inp.split()]
     for k in klist:
         if k >= len(os.listdir(audio_folder)):
             audiopath = audio_selection(audio_folder)
         else:
-            if os.path.isfile(os.path.join(audio_folder, os.listdir(audio_folder)[k])):
-                audiopath.append( os.path.join(audio_folder, os.listdir(audio_folder)[k]))
-            elif os.path.isdir(os.path.join(audio_folder, os.listdir(audio_folder)[k])):
-                audiopath = audio_selection(audio_folder=os.path.join(audio_folder, os.listdir(audio_folder)[k]), audiopath=audiopath)
+            if os.path.isfile( paths[k] ):
+                audiopath.append( paths[k] )
+            elif os.path.isdir( paths[k] ):
+                audiopath = audio_selection(audio_folder=paths[k], audiopath=audiopath)
             
     return audiopath
             
