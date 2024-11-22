@@ -16,18 +16,17 @@
 # Author: João Fatela 
 # Contact: joao.garrettfatela@unicampania.it
 # Dipartimento di Architettura e Disegno Industriale, Università degli Studi della Campania 'Luigi Vanvitelli'
-# 18.11.2024
+# 22.11.2024
 def import_or_install(package):
     try:
         __import__(package)
     except ImportError:
-        pip.main(['install', package]) 
+        os.system('python -m pip install '+ package + '| grep -v \'already satisfied\'')
 
-
-import pip
+import os
+import_or_install('wxPython')
 import_or_install('pyo')
 import_or_install('configparser')
-
 from pyo import *
 import configparser
 
@@ -35,6 +34,7 @@ CONFIG_FILENAME = 'config.ini'
 config_filepath='.\\lib\\'+CONFIG_FILENAME
 
 # listing devices connected through portaudio
+print("\n\n\n")
 pa_list_devices()
 
 #user prompt

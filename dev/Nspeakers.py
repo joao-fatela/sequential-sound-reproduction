@@ -17,24 +17,26 @@
 # Author: João Fatela 
 # Contact: joao.garrettfatela@unicampania.it
 # Dipartimento di Architettura e Disegno Industriale, Università degli Studi della Campania 'Luigi Vanvitelli'
-# 18.11.2024
+# 22.11.2024
 def import_or_install(package):
     try:
         __import__(package)
     except ImportError:
-        pip.main(['install', package])
+        os.system('python -m pip install '+ package+ '| grep -v \'already satisfied\'')
 
+import os
 
-import pip
+import_or_install('wxPython')
 import_or_install('pyo')
 import_or_install('termcolor')
 import_or_install('configparser')
+
 import time
 from pyo import *
 import sys
 from termcolor import cprint
 import configparser
-import os
+
 
 # INITIALIZATION via config file
 def inicio(ini_file='.\lib\config.ini'):
