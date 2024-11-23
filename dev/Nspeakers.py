@@ -84,7 +84,7 @@ def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
 
     return file
         
-def play(ID: int, dir: int, signal='test',dur=1, wait=0.1, t0=0):
+def play(ID: int, dir: int, signal='test',dur=1, wait=0.5):
     """
     Reproduce a single signal for a fixed duration and device.
 
@@ -100,32 +100,12 @@ def play(ID: int, dir: int, signal='test',dur=1, wait=0.1, t0=0):
         time.sleep(dur)
         sd.stop()
     
-    t0 = time.time()
-    
-    # current_frame = 0
-    
-    # def callback(outdata, frames, time, status):
-    #     global current_frame
-    #     if status:
-    #         print(status)
-    #     chunksize = min(len(data) - current_frame, frames)
-    #     outdata[:chunksize] = data[current_frame:current_frame + chunksize]
-    #     if chunksize < frames:
-    #         outdata[chunksize:] = 0
-    #         raise sd.CallbackStop()
-    #     current_frame += chunksize
-    
-    # stream = sd.OutputStream(
-    #     samplerate=fs, device=ID,
-    #     callback=callback, latency='low')
-    # stream.start()
-    # time.sleep(dur)
-    # stream.stop()
+    return time.time()
     
 
         
 # SIMPLE AUDIO REPRODUCTION ROUTINES
-def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]):
+def sequential_reproduction(signal = 'test', duration = 1, wait=0.5, device_IDs=[]):
     """
     Play selected audio through list of devices sequentially.
     
@@ -134,6 +114,7 @@ def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]
     for i,ID in enumerate(device_IDs):
         cprint("    - Device "+ str(i+1), "light_cyan")
         play(ID, i+1, signal, duration, wait)
+
 
 def run_test(test_dur = 30, device_IDs=[]):
     """
@@ -212,7 +193,8 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
 # MAIN
 #######################################################################################################
 if __name__ == "__main__":
-    
+    global t0
+    t0 = 0    
     mode, device_IDs, repro = inicio()
 
     if os.path.isdir("./audio/"):
