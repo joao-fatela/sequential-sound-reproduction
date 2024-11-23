@@ -35,13 +35,13 @@ def main():
     config_filepath='.\\lib\\'+CONFIG_FILENAME
 
     # listing devices connected through portaudio
-    print("\n")
+    print()
 
     print_output_devices()
     
     #user prompt
     cprint("\n\n!READ THE LIST ABOVE CAREFULLY!",'yellow')
-    IDs = input("Enter audio device IDs separated by spaces: ") # ! not resilient to misspellings/wrong input
+    IDs = input("Enter desired audio device IDs separated by spaces: ") # ! not resilient to misspellings/wrong input
 
     # reading the config file data
     read_config = configparser.ConfigParser()
@@ -49,7 +49,6 @@ def main():
 
     # temporarily storing data that may be deleted upon writing on config file
     python_path = read_config['paths']['python_path']
-
 
     repro = read_config['reproduction']
 

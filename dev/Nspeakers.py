@@ -17,7 +17,7 @@ import soundfile as sf
 import sounddevice as sd
 import sys
 from termcolor import cprint
-
+from write_device_list import main as write_devices
 
 def inicio(ini_file='.\lib\config.ini'):
     """
@@ -27,13 +27,25 @@ def inicio(ini_file='.\lib\config.ini'):
     and the audio reproduction IDs from the defined configurations (.ini) file.
 
     """
-    # initialize .ini interpreter and read the file
-    read_config = configparser.ConfigParser(inline_comment_prefixes="#") 
-    read_config.read(ini_file)
+    data = []
+    while data == []:
+        # initialize .ini interpreter and read the file
+        read_config = configparser.ConfigParser(inline_comment_prefixes="#") 
+        read_config.read(ini_file)
 
-    # extract output device IDs from the .ini file
-    dd = read_config['devices']['device_id'] # string
-    data = [int(x) for x in dd.split()] # list of integers
+        # extract output device IDs from the .ini file
+        dd = read_config['devices']['device_id'] # string
+        
+        
+        for x in dd.split(): 
+            if x.isnumeric():
+                data.append(int(x))
+                
+        if data == []:
+            cprint("You must first select desired reproduction devices.\nInput the corresponding numerical IDs.","light_red", attrs=["bold"])
+            write_devices()
+
+        
 
     repro = dict()
     if not read_config['reproduction']['audio_duration'].isnumeric():
@@ -99,7 +111,7 @@ def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]
     """
 
     cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
-    for i,ID in enumerate(device_IDs):
+    for ID in enumerate(device_IDs):
         play(ID, signal, duration, wait)
 
 def run_test(test_dur = 30, device_IDs=[]):
