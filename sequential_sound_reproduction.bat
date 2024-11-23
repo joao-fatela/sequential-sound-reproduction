@@ -11,8 +11,9 @@ for /f "tokens=1,2 delims== " %%a in (%CONFIG_DIR%%CONFIG_FILE%) do (
 )
 
 rem force quiet dependency install
-echo.Checking/installing dependencies...
+echo|set /p="Checking/installing dependencies..."
 "%PYTHON_PATH%" -m pip install -q -r requirements.txt
+echo. Done!
 
 rem prompt user to define output device ID list
 set /p YN="Set audio device ID list? (Y/[N]): "
