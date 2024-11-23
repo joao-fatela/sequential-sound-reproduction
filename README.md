@@ -17,10 +17,9 @@ It aims to provide a very basic solution to a very basic problem. By nature it h
 Maintenance  is not guaranteed.
 
 ### Author
-João Garrett Fatela
-joao.garrettfatela@unicampania.it
-_Dipartimento di Architettura e Disegno Industriale_
-Università degli Studi della Campania *Luigi Vanvitelli*
+João Garrett Fatela | joao.garrettfatela@unicampania.it
+
+_Dipartimento di Architettura e Disegno Industriale_ | Università degli Studi della Campania *Luigi Vanvitelli*
 
 
 
@@ -99,7 +98,7 @@ Its operation is described below.
 	 }
 
 ## Configuration
-### .\lib\ config.ini
+### lib\ config.ini
 Configuration file. Stores relevant information for the correct operation of the audio reproduction routine.
 - `[paths]`
 	- `python_path` -> the path to the desired python executable
@@ -108,7 +107,7 @@ Configuration file. Stores relevant information for the correct operation of the
 	- `device_id` -> portaudio id of reproduction devices. Mind the sampling rate, since it must match the chosen signals!
 
 - `[reproduction]`
-	- `audio_duration` -> audio duration in seconds. Default 1s. Mind the duration of the input signals!
+	- `audio_duration` -> audio duration in seconds. Default is the total duration of the selected audio file.  
 	- `wait_duration` -> wait time after each reproduction in second. Default 0.5s. It's recommended to include some wait_duration => 0.1s, in order to compensate for potential program latency.
 
 ## Audio signal library
