@@ -24,8 +24,8 @@ def print_output_devices():
     for elem in dictlist:
         if elem["max_output_channels"] != 0:
             string = "[" + str(elem["index"]) + "]"
-            string += (5-len(string))*" "+" - " + elem["name"] 
-            string += (50-len(string))*" " + " | " + sd.query_hostapis(elem["hostapi"])['name']
+            string += (5-len(string))*" "+" - " + elem["name"][0:40] 
+            string += (48-len(string))*" " + " | " + sd.query_hostapis(elem["hostapi"])['name']
             string += (75-len(string))*" " + " | sr: " + str(elem["default_samplerate"]) + "; lat: " + str(elem["default_low_output_latency"])
 
             cprint(string, colors[elem["hostapi"]%2])
@@ -38,8 +38,6 @@ def main():
     print("\n")
 
     print_output_devices()
-
-
     
     #user prompt
     cprint("\n\n!READ THE LIST ABOVE CAREFULLY!",'yellow')
