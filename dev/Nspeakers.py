@@ -8,8 +8,6 @@ Contact: joao.garrettfatela@unicampania.it
 Dipartimento di Architettura e Disegno Industriale, Università degli Studi della Campania 'Luigi Vanvitelli'
 22.11.2024
 """
-
-
 import os
 import configparser
 import time
@@ -19,7 +17,10 @@ import sys
 from termcolor import cprint
 from write_device_list import main as write_devices
 
-def inicio(ini_file='.\lib\config.ini'):
+global_sr = 192000.0
+t0 = 0   
+
+def inicio(ini_file='.\lib\config.ini', global_sr = global_sr):
     """
     Initialize reproduction parameters after config.ini file.
 
@@ -45,7 +46,10 @@ def inicio(ini_file='.\lib\config.ini'):
             cprint("You must first select desired reproduction devices.\nInput the corresponding numerical IDs.","light_red", attrs=["bold"])
             write_devices()
 
-        
+    for devID in data:
+        devdata = sd.query_devices(device=devID)
+        if devdata['default_samplerate'] < global_sr:
+            global_sr = devdata['default_samplerate']
 
     repro = dict()
     if not read_config['reproduction']['audio_duration'].isnumeric():
@@ -90,9 +94,9 @@ def play(ID: int, dir: int, signal='test',dur=1, wait=0.5):
 
     """
     f=select_audio_file(dir,signal) 
-    data, fs = sf.read(f)
+    data, _ = sf.read(f)
     
-    sd.default.samplerate = fs
+    sd.default.samplerate = global_sr
     sd.default.device = ID
     
     if time.time()-t0 >= wait:
@@ -187,17 +191,15 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
             
     return audiopath
             
-        
-    
+            
 #######################################################################################################
 # MAIN
 #######################################################################################################
 if __name__ == "__main__":
-    global t0
-    t0 = 0    
     mode, device_IDs, repro = inicio()
 
     if os.path.isdir("./audio/"):
+        
         if str.lower(mode) == 'test' or str.lower(mode) == 't':
             if os.path.isdir("./audio/test/"):
                 run_test(device_IDs=device_IDs)
@@ -206,6 +208,13 @@ if __name__ == "__main__":
                 
         elif str.lower(mode) == 'custom' or str.lower(mode) == 'c' or mode == '':
             audiopaths = audio_selection()
+            for audio in audiopaths:
+                _,sr=sf.read(audio)
+                if sr<global_sr:
+                    global_sr = sr
+                    
+            cprint("\nReproduction sampling rate defaulted to " + str(global_sr) + " Hz.", "yellow", attrs=["dark"])
+            input("Press Enter begin reproduction sequence...")
             
             for audio in audiopaths:
                 sequential_reproduction(signal=audio, duration=repro["dur"], wait=repro["wait"], device_IDs=device_IDs)
