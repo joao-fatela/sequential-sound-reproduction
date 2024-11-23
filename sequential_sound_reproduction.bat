@@ -10,6 +10,16 @@ for /f "tokens=1,2 delims== " %%a in (%CONFIG_DIR%%CONFIG_FILE%) do (
 	if %%a==python_path set PYTHON_PATH=%%b
 )
 
+
+if exist %PYTHON_PATH% (
+	goto :realrun
+) else (
+	echo ERROR: '%PYTHON_PATH%' is not a valid path.
+	echo Please write a valid path to python.exe in the configuration file lib/config.ini
+	goto :endmessage
+)
+
+:realrun
 rem force quiet dependency install
 echo|set /p="Checking/installing dependencies..."
 "%PYTHON_PATH%" -m pip install -q -r requirements.txt
@@ -37,10 +47,13 @@ echo.
 rem Prompt user for audio signal / reproduction mode
 set /p MODE="Choose audio routine [C]USTOM / [t]est: "
 
-if [%MODE%]==[] set MODE=test
+if [%MODE%]==[] set MODE=custom
 
 rem Audio reproduction script with user audio mode flag
 "%PYTHON_PATH%" ".\dev\Nspeakers.py" %MODE%
 echo.
-echo.Audio reproduction is finished. Press any key to close window.
+echo.Audio reproduction is finished. 
+
+:endmessage
+echo.Press any key to close window.
 pause >nul
