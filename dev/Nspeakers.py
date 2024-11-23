@@ -17,8 +17,7 @@ import sys
 from termcolor import cprint
 from write_device_list import main as write_devices
 
-global_sr = 192000.0
-t0 = 0   
+global_sr = 192000.0  
 
 def inicio(ini_file='.\lib\config.ini', global_sr = global_sr):
     """
@@ -52,12 +51,12 @@ def inicio(ini_file='.\lib\config.ini', global_sr = global_sr):
             global_sr = devdata['default_samplerate']
 
     repro = dict()
-    if not read_config['reproduction']['audio_duration'].isnumeric():
+    if read_config['reproduction']['audio_duration'] == '':
         repro["dur"]=None
     else:
         repro["dur"]=float(read_config['reproduction']['audio_duration'])
         
-    if not read_config['reproduction']['wait_duration'].isnumeric():
+    if read_config['reproduction']['wait_duration'] == '':
         repro["wait"]=.5
     else:
         repro["wait"]=float(read_config['reproduction']['wait_duration'])
@@ -88,7 +87,7 @@ def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
 
     return file
         
-def play(ID: int, f,dur=1, wait=0.5):
+def play(ID: int, f, dur=1, wait=0.5,t0=0):
     """
     Reproduce a single signal for a fixed duration and device.
 
@@ -99,17 +98,19 @@ def play(ID: int, f,dur=1, wait=0.5):
     sd.default.samplerate = global_sr
     sd.default.device = ID
     
-    if time.time()-t0 >= wait:
-        sd.play(data)
-        time.sleep(dur)
-        sd.stop()
+    while time.time()-t0 < wait:
+        pass
+    
+    sd.play(data)
+    time.sleep(dur)
+    sd.stop()
     
     return time.time()
     
 
         
 # SIMPLE AUDIO REPRODUCTION ROUTINES
-def sequential_reproduction(signal = 'test', duration = 1., wait=0.5, device_IDs=[]):
+def sequential_reproduction(signal = 'test', duration = 1., wait=0.5, device_IDs=[], t0=0):
     """
     Play selected audio through list of devices sequentially.
     
@@ -123,7 +124,7 @@ def sequential_reproduction(signal = 'test', duration = 1., wait=0.5, device_IDs
     for i,ID in enumerate(device_IDs):
         cprint("    - Device "+ str(i+1), "light_cyan")
         f=select_audio_file(i+1,signal) 
-        play(ID, f, duration, wait)
+        t0 = play(ID, f, duration, wait, t0=t0)
 
 
 def run_test(test_dur = 30, device_IDs=[]):
@@ -202,6 +203,7 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
 # MAIN
 #######################################################################################################
 if __name__ == "__main__":
+    
     mode, device_IDs, repro = inicio()
 
     if os.path.isdir("./audio/"):
@@ -223,7 +225,7 @@ if __name__ == "__main__":
             input("Press Enter begin reproduction sequence...")
             
             for audio in audiopaths:
-                sequential_reproduction(signal=audio, duration=repro["dur"], wait=repro["wait"], device_IDs=device_IDs)
+                sequential_reproduction(signal=audio, duration=repro["dur"], wait=repro["wait"], device_IDs=device_IDs, t0=0)
 
     else:
         IsADirectoryError("./audio/ folder removed or missing.")
