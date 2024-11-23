@@ -84,19 +84,11 @@ def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
 
     return file
         
-def play(ID=0,signal='test',dur=1, wait=0):
+def play(ID: int, dir: int, signal='test',dur=1, wait=0):
     """
     Reproduce a single signal for a fixed duration and device.
 
     """
-
-    # initialize list of servers
-    
-    # equivalent to previous for single output device
-
-    dir = device_IDs.index(ID)+1
-
-    
     f=select_audio_file(dir,signal) 
     data, fs = sf.read(f)
     sd.play(data, fs)
@@ -106,13 +98,12 @@ def play(ID=0,signal='test',dur=1, wait=0):
 # SIMPLE AUDIO REPRODUCTION ROUTINES
 def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]):
     """
-    Play selected audio through list of devices sequentially
+    Play selected audio through list of devices sequentially.
     
     """
-
     cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
-    for ID in enumerate(device_IDs):
-        play(ID, signal, duration, wait)
+    for i,ID in enumerate(device_IDs):
+        play(ID, i+1, signal, duration, wait)
 
 def run_test(test_dur = 30, device_IDs=[]):
     """
