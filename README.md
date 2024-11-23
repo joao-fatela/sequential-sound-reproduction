@@ -29,8 +29,8 @@ Università degli Studi della Campania *Luigi Vanvitelli*
 - Machine with active [Portaudio](http://www.portaudio.com/) driver 
 - Python (**version <ins>3.10 or 3.11</ins>**) environment with 
 	- [numpy](https://pypi.org/project/numpy/)
-	- [soundfile]
-	- [sounddevice]
+	- [soundfile](https://pypi.org/project/soundfile/)
+	- [sounddevice](https://pypi.org/project/sounddevice/)
 	- [configparser](https://pypi.org/project/configparser/) 
 	- [termcolor](https://pypi.org/project/termcolor/libraries)
 
