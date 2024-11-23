@@ -91,30 +91,16 @@ def play(ID=0,signal='test',dur=1, wait=0):
     sd.wait()
     
 
-def preload_server(IDs=[]):
-
-    cprint("Loading audio servers...")
-
-    serverlist = []
-
-    for i in range(len(IDs)):
-        s = Server(duplex=0,buffersize=256, nchnls=pa_get_output_max_channels(IDs[i]))
-        s.setOutputDevice(IDs[i])
-        s.boot()
-        serverlist.append(s)
-    return serverlist
-
 # SIMPLE AUDIO REPRODUCTION ROUTINES
 def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]):
     """
     Play selected audio through list of devices sequentially
     
     """
-    serverlist = preload_server(device_IDs)
 
     cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
     for i,ID in enumerate(device_IDs):
-        play(ID, signal, duration, wait, serverlist[i])
+        play(ID, signal, duration, wait)
 
 def run_test(test_dur = 30, device_IDs=[]):
     """
