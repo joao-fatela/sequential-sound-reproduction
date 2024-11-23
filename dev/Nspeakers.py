@@ -8,17 +8,19 @@ Contact: joao.garrettfatela@unicampania.it
 Dipartimento di Architettura e Disegno Industriale, Università degli Studi della Campania 'Luigi Vanvitelli'
 22.11.2024
 """
-
-from pyo import pa_get_output_max_channels
 import os
 import configparser
 import time
-from pyo import Server, SfPlayer
+import soundfile as sf
+import sounddevice as sd
 import sys
 from termcolor import cprint
+from write_device_list import main as write_devices
 
+global_sr = 192000.0
+t0 = 0   
 
-def inicio(ini_file='.\lib\config.ini'):
+def inicio(ini_file='.\lib\config.ini', global_sr = global_sr):
     """
     Initialize reproduction parameters after config.ini file.
 
@@ -26,13 +28,28 @@ def inicio(ini_file='.\lib\config.ini'):
     and the audio reproduction IDs from the defined configurations (.ini) file.
 
     """
-    # initialize .ini interpreter and read the file
-    read_config = configparser.ConfigParser(inline_comment_prefixes="#") 
-    read_config.read(ini_file)
+    data = []
+    while data == []:
+        # initialize .ini interpreter and read the file
+        read_config = configparser.ConfigParser(inline_comment_prefixes="#") 
+        read_config.read(ini_file)
 
-    # extract output device IDs from the .ini file
-    dd = read_config['devices']['device_id'] # string
-    data = [int(x) for x in dd.split()] # list of integers
+        # extract output device IDs from the .ini file
+        dd = read_config['devices']['device_id'] # string
+        
+        
+        for x in dd.split(): 
+            if x.isnumeric():
+                data.append(int(x))
+                
+        if data == []:
+            cprint("You must first select desired reproduction devices.\nInput the corresponding numerical IDs.","light_red", attrs=["bold"])
+            write_devices()
+
+    for devID in data:
+        devdata = sd.query_devices(device=devID)
+        if devdata['default_samplerate'] < global_sr:
+            global_sr = devdata['default_samplerate']
 
     repro = dict()
     if not read_config['reproduction']['audio_duration'].isnumeric():
@@ -71,84 +88,37 @@ def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
 
     return file
         
-def play(ID=0,signal='test',dur=1, wait=0):
+def play(ID: int, dir: int, signal='test',dur=1, wait=0.5):
     """
     Reproduce a single signal for a fixed duration and device.
 
     """
-    server_verbosity = 1
-
-    # initialize list of servers
-    S = []
-    if type(ID) is list:
-        # multiple output devices
-        for id in ID:
-
-            # in case of 'test' output, <dir> is relevant for audio reproduction 
-            dir = device_IDs.index(id)+1
-            # initialize server
-            s = Server(duplex=0,buffersize=256)
-            s.setVerbosity(server_verbosity)
-            s.setOutputDevice(id)
-            s.boot()
-            f=select_audio_file(dir,signal) 
-
-            # output channel definition
-            num_channels = pa_get_output_max_channels(ID)
-            Outp=[]
-            for i in range(0,num_channels):
-                Outp.append( SfPlayer(f, speed=1,loop=True, mul=1.).out(i))
-            s.start()   # !reproduction of multiple sources not perfectly synchronized!
-
-            # append server to list of servers
-            S.append(s)
-
-        # hold reproduction for <dur seconds>
+    f=select_audio_file(dir,signal) 
+    data, _ = sf.read(f)
+    
+    sd.default.samplerate = global_sr
+    sd.default.device = ID
+    
+    if time.time()-t0 >= wait:
+        sd.play(data)
         time.sleep(dur)
+        sd.stop()
+    
+    return time.time()
+    
 
-        # stop audio reproduction
-        for i in range(0,len(ID)-1):
-            S[i].stop()
-            
-        # no reproduction for <wait seconds>
-        time.sleep(wait)
-            
-    else:
         
-        # equivalent to previous for single output device
-
-        dir = device_IDs.index(ID)+1
-
-        s = Server(duplex=0,buffersize=256)
-        s.setVerbosity(server_verbosity)
-        s.setOutputDevice(ID)
-        s.boot()
-        f=select_audio_file(dir,signal) 
-
-        num_channels = pa_get_output_max_channels(ID)
-        Outp=[]
-        Outp.append( SfPlayer(f, speed=[1]*num_channels,loop=True, mul=1.).out())
-       
-        s.start()  
-
-        cprint("    - Device " + str(dir) , 'light_cyan')    
-        # hold reproduction for <dur seconds>
-        time.sleep(dur)
-        s.stop()
-        
-        # no reproduction for <wait seconds>
-        time.sleep(wait)
-
-
 # SIMPLE AUDIO REPRODUCTION ROUTINES
-def sequential_reproduction(signal = 'test', duration = 1, wait=0, device_IDs=[]):
+def sequential_reproduction(signal = 'test', duration = 1, wait=0.5, device_IDs=[]):
     """
-    Play selected audio through list of devices sequentially
+    Play selected audio through list of devices sequentially.
     
     """
     cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
-    for ID in device_IDs:
-        play(ID, signal, duration, wait)
+    for i,ID in enumerate(device_IDs):
+        cprint("    - Device "+ str(i+1), "light_cyan")
+        play(ID, i+1, signal, duration, wait)
+
 
 def run_test(test_dur = 30, device_IDs=[]):
     """
@@ -221,24 +191,30 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
             
     return audiopath
             
-        
-    
+            
 #######################################################################################################
 # MAIN
 #######################################################################################################
 if __name__ == "__main__":
-    
     mode, device_IDs, repro = inicio()
 
     if os.path.isdir("./audio/"):
-        if str.lower(mode) == 'test' or str.lower(mode) == 't' or str.lower(mode) == '':
+        
+        if str.lower(mode) == 'test' or str.lower(mode) == 't':
             if os.path.isdir("./audio/test/"):
                 run_test(device_IDs=device_IDs)
             else:
                 IsADirectoryError("./audio/test/ folder removed or missing.")
                 
-        elif str.lower(mode) == 'custom' or str.lower(mode) == 'c':
+        elif str.lower(mode) == 'custom' or str.lower(mode) == 'c' or mode == '':
             audiopaths = audio_selection()
+            for audio in audiopaths:
+                _,sr=sf.read(audio)
+                if sr<global_sr:
+                    global_sr = sr
+                    
+            cprint("\nReproduction sampling rate defaulted to " + str(global_sr) + " Hz.", "yellow", attrs=["dark"])
+            input("Press Enter begin reproduction sequence...")
             
             for audio in audiopaths:
                 sequential_reproduction(signal=audio, duration=repro["dur"], wait=repro["wait"], device_IDs=device_IDs)

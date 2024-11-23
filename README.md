@@ -1,14 +1,14 @@
 # INTRO
 The code in this folder runs an audio reproduction routine over a set of output devices connected to the machine via Portaudio driver (http://www.portaudio.com/)
-It is provided as a proto- software bundle to make its use more practical and intuitive.
-The bundle includes:
+
+The package includes:
 - a sample audio library, 
 - a configuration file,
 - a python program for audio device listing and assignment, 
 - a python program which runs the reproduction routine, and 
 - a simplified batch file which allows basic users to run and control limited aspects of the routine.
 
-This program is optimized for a specific audio reproduction routine on an N number of speakers.
+This program is optimized for a specific audio reproduction routine on a given number of speakers.
 In order to introduce changes in the routine or create a new one, the source code can be adapted (see section **.\dev\Nspeakers.py**). This, however, cannot be guaranteed to provide consistent results.
 
 ### Disclaimer
@@ -28,13 +28,14 @@ Università degli Studi della Campania *Luigi Vanvitelli*
 ### Requirements:
 - Machine with active [Portaudio](http://www.portaudio.com/) driver 
 - Python (**version <ins>3.10 or 3.11</ins>**) environment with 
-	- [pyo](https://pypi.org/project/pyo/)
-	- [wxPython](https://pypi.org/project/wxPython/)
+	- [numpy](https://pypi.org/project/numpy/)
+	- [soundfile]
+	- [sounddevice]
 	- [configparser](https://pypi.org/project/configparser/) 
 	- [termcolor](https://pypi.org/project/termcolor/libraries)
 
 Generally, an automated routine will attempt to install them before the program is run.
-If you wish to run the program with a different python distribution, you can install these dependencies manually and remove lines 13-15 of `sequential_sound_reproduction.bat`
+If you wish to run the program with a different python distribution, you can install these dependencies manually and remove lines 23-26 of `sequential_sound_reproduction.bat`.
 
 **Notice for basic users:**
 ! _Do not change folder and file structure or file names_ !
@@ -62,14 +63,14 @@ Check that all desired devices are numbered in the order by which they were inpu
 **TIP**: If you wish to change the ordering of the devices, or repeat reproduction in a given device, this should be hard coded in the input sequence of devices. Remeber: this order can always be changed directly in the configuration file `lib/config.ini` for convenience.
 
 ### Troubleshooting
-- **Command line outputs message 'Impossible to find defined path' or similar:** Make sure to replace the python_path variable to a path in your own machine. 
-- **Command line outputs message 'ModuleNotFoundError: No module named 'module-name'':** Make sure that you have installed the required python modules, and check that the `python_path` variable in the configuration file points to the environment where the modules are installed. 
+ 
 - **No audio output:** Re-run `sequential_sound_reproduction.bat`. Write `'y'` upon first prompt. Double check that the device IDs respect to *output devices*. Double check that the IDs respect to the *desired* devices. Double check that desired ID numbers are separated by *empty spaces*. Run the `'test'` reproduction mode again.
 - **The reproduction order of the output devices is incorrect:** Make sure that the output devices are connected to the computer and outputting at the desired volume. Re-run `sequential_sound_reproduction.bat`. Write `'y'` upon first prompt. Input the device IDs in the order that you wish them to play the audio. Run the `'test'` reproduction mode again.
+- **incompatible sampling rate error message:** The program automatically defaults the audio reproduction to the lowest sampling rate necessary for artifact-less reproduction. This is based on the sampling rate of the selected audios, as well as available sampling rate on the selected devices. However, certain audio APIs
 
-
-# FILE STRUCTURE AND DESCRIPTION
-### .\sequential_sound_reproduction.bat
+# Program structure
+## User interface
+### sequential_sound_reproduction.bat
 Batch file. It helps the user to operate the output device assignment and the audio reproduction routine.
 Its operation is described below.
 
@@ -97,7 +98,7 @@ Its operation is described below.
 			}
 	 }
 
-
+## Configuration
 ### .\lib\ config.ini
 Configuration file. Stores relevant information for the correct operation of the audio reproduction routine.
 - `[paths]`
@@ -108,11 +109,25 @@ Configuration file. Stores relevant information for the correct operation of the
 
 - `[reproduction]`
 	- `audio_duration` -> audio duration in seconds. Default 1s. Mind the duration of the input signals!
-	- `wait_duration` -> wait time after each reproduction in second. Default 0s. Note that the real wait time may be slightly longer, due to the processing time of the routine. 
-  
+	- `wait_duration` -> wait time after each reproduction in second. Default 0.5s. It's recommended to include some wait_duration => 0.1s, in order to compensate for potential program latency.
+
+## Audio signal library
+### audio\
+Audio file library for the reproduction routines.
+- `audio\white_noise_5s.wav`: 5s white noise audio clip.
+- `audio\pink_noise_5s.wav`: 5s pink noise audio clip.
+- `audio\brown_noise_5s.wav`: 5s brown noise audio clip.
+
+#### audio\test\
+contains audio signals for the 'test' routine
+- `audio\test\<number>.wav`:
+Audio clip of TTS voice enunciating the [number] in the filename. Relevant for numbering the output devices in the 'test' routine.
 
 
-## .\dev\ 
+**NOTE:** This library can be freely expanded by adding .mp3 or .wav files to the `audio\` folder. Creation of subfolders is also supported.
+
+## Source code
+### dev\ 
 "Developer" folder. Contains Python source code.
 
 ### .\dev\ list_devices.py
@@ -122,19 +137,3 @@ Further details of its operation are commented in the source code.
 ### .\dev\ Nspeakers.py
 Performs audio reproduction routines, given a **reproduction mode** or routine ID (as argument) and a **list of output device IDs** (in `.\lib\config.ini` under the field `device_id`).
 
-
-## .\audio\
-Audio file library for the `.\dev\Nspeakers.py` routines.
-### .\audio\ WN.wav
-5s white noise audio clip.
-### .\audio\ PN.wav
-5s pink noise audio clip.
-### .\audio\ BN.wav
-5s brown noise audio clip.
-### .\audio\test\
-Audio file library for the Nspeakers.py routines.
-#### .\audio\test\ [number].wav
-Audio clip of TTS voice enunciating the [number] in the filename. Relevant for numbering the output devices in the 'test' routine of `.\dev\Nspeakers.py`.
-
-
-This library can be freely expanded by adding .mp3 or .wav files to the `.\audio\` folder. Creation of subfolders is also supported.
