@@ -53,12 +53,12 @@ def inicio(ini_file='.\lib\config.ini', global_sr = global_sr):
 
     repro = dict()
     if not read_config['reproduction']['audio_duration'].isnumeric():
-        repro["dur"]=1
+        repro["dur"]=None
     else:
         repro["dur"]=float(read_config['reproduction']['audio_duration'])
         
     if not read_config['reproduction']['wait_duration'].isnumeric():
-        repro["wait"]=0
+        repro["wait"]=.5
     else:
         repro["wait"]=float(read_config['reproduction']['wait_duration'])
 
@@ -88,12 +88,12 @@ def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
 
     return file
         
-def play(ID: int, dir: int, signal='test',dur=1, wait=0.5):
+def play(ID: int, f,dur=1, wait=0.5):
     """
     Reproduce a single signal for a fixed duration and device.
 
     """
-    f=select_audio_file(dir,signal) 
+    
     data, _ = sf.read(f)
     
     sd.default.samplerate = global_sr
@@ -109,15 +109,21 @@ def play(ID: int, dir: int, signal='test',dur=1, wait=0.5):
 
         
 # SIMPLE AUDIO REPRODUCTION ROUTINES
-def sequential_reproduction(signal = 'test', duration = 1, wait=0.5, device_IDs=[]):
+def sequential_reproduction(signal = 'test', duration = 1., wait=0.5, device_IDs=[]):
     """
     Play selected audio through list of devices sequentially.
     
     """
     cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
+    
+    if duration is None:
+        dat,sr = sf.read(signal)
+        duration = dat.shape[0]/sr
+    
     for i,ID in enumerate(device_IDs):
         cprint("    - Device "+ str(i+1), "light_cyan")
-        play(ID, i+1, signal, duration, wait)
+        f=select_audio_file(i+1,signal) 
+        play(ID, f, duration, wait)
 
 
 def run_test(test_dur = 30, device_IDs=[]):
