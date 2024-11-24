@@ -50,16 +50,23 @@ def inicio(ini_file='.\lib\config.ini', global_sr = 192000):
         if devdata['default_samplerate'] < global_sr:
             global_sr = devdata['default_samplerate']
 
-    repro = dict()
-    if read_config['reproduction']['audio_duration'] == '':
-        repro["dur"]=None
-    else:
-        repro["dur"]=float(read_config['reproduction']['audio_duration'])
+    repro = dict({"dur": None, "wait": 0.5, "lib": "audio/"})
+    
+    if 'reproduction' in read_config:
+        if ('audio_duration' in read_config['reproduction']):
+            if (read_config['reproduction']['audio_duration'] != ''):
+                repro["dur"]=float(read_config['reproduction']['audio_duration'])
         
-    if read_config['reproduction']['wait_duration'] == '':
-        repro["wait"]=.5
-    else:
-        repro["wait"]=float(read_config['reproduction']['wait_duration'])
+        if ('wait_duration' in read_config['reproduction']): 
+            if (read_config['reproduction']['wait_duration'] != ''):
+                repro["wait"]=float(read_config['reproduction']['wait_duration'])
+
+        if ('audio_library' in read_config['reproduction']): 
+            if (read_config['reproduction']['audio_library'] != ''):
+                repro["lib"]=read_config['reproduction']['audio_library']
+                
+                if not (repro["lib"].endswith("/") or repro["lib"].endswith('\\')):
+                    repro["lib"] += "\\"
 
     # 'reproduction mode' from call arguments
     mode = sys.argv[1] 
@@ -151,7 +158,7 @@ def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
     cprint("\nSelect audio file by writing the corresponding index number from the list below.",attrs=["bold"])
     cprint("You may select multiple files to be played sequentially\n"+
             "by writing their indices in order separated by spaces.\n",'dark_grey')
-    cprint("current directory: \' "+audio_folder+"\\ \'",'yellow',attrs=["dark"])
+    cprint("current directory: \' "+audio_folder+" \'",'yellow',attrs=["dark"])
     print(" ")
     # loop over subfolders
     counter = 0
@@ -222,7 +229,7 @@ if __name__ == "__main__":
                 IsADirectoryError("./audio/test/ folder removed or missing.")
                 
         elif str.lower(mode) == 'custom' or str.lower(mode) == 'c' or mode == '':
-            audiopaths = audio_selection()
+            audiopaths = audio_selection(audio_folder=repro['lib'])
             for audio in audiopaths:
                 _,sr=sf.read(audio)
                 if sr<global_sr:
