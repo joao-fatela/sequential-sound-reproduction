@@ -136,7 +136,9 @@ def play(IDlist: list, data: np.ndarray, dur=1, wait=0.5,global_sr=44100,t0=0):
     """
     Reproduce a single signal for a fixed duration and device.
 
-    """    
+    """
+    global current_frame
+    current_frame=0
     
     def callback(outdata, frames, time, status):
         global current_frame
@@ -148,8 +150,6 @@ def play(IDlist: list, data: np.ndarray, dur=1, wait=0.5,global_sr=44100,t0=0):
             outdata[chunksize:] = 0
             raise sd.CallbackStop()
         current_frame += chunksize
-    
-    
     
     
     jobs = []
@@ -173,7 +173,6 @@ def play(IDlist: list, data: np.ndarray, dur=1, wait=0.5,global_sr=44100,t0=0):
         
     for job in jobs:
         job.join()
-        
     
     return time.time()
     
@@ -188,7 +187,11 @@ def sequential_reproduction(buffer:np.ndarray, signal = 'test', duration = 1., w
     cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
     
     for i,ID in enumerate(device_IDs):
-        cprint("    - Device "+ str(i+1), "light_cyan")            
+        string = "    " + str(i+1)+". Device(s) [ "
+        for id in ID:
+            string += str(id) + " "
+        
+        cprint(string+"]", "light_cyan")            
         t0 = play(ID, buffer, duration, wait, global_sr=global_sr, t0=t0)
         
     return t0
