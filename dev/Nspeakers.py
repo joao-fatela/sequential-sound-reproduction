@@ -132,7 +132,7 @@ def select_test_file(dir = 0, signal='test', folder = '.\\audio\\' ):
 
     return file
         
-def play(IDlist: list, data: np.ndarray, dur=1, wait=0.5,global_sr=44100,t0=0):
+def play(IDlist: list, data: np.ndarray, dur=1, wait=1,global_sr=44100,t0=0):
     """
     Reproduce a single signal for a fixed duration and device.
 
@@ -205,10 +205,30 @@ def run_test(test_dur = 30, device_IDs=[], global_sr=44100, t0=0):
     with a unique audio identifier.
     
     """
+    bufferlist = []
+    for i in range(len(device_IDs)):
+        audio = "audio/test/"+str(i+1)+".wav"
+        data,_ = sf.read(audio)
+        if len(data.shape)==1:
+            data = data.reshape(data.shape[0],1)
+        bufferlist.append(data)
+
+    cprint("\nBegin test signal output", 'light_blue')
+    
     timeout = time.time() + test_dur
 
-    while time.time() < timeout:
-        t0 = sequential_reproduction(device_IDs=device_IDs, global_sr=global_sr, t0=t0)
+    while time.time() < timeout:        
+        
+        for i,ID in enumerate(device_IDs):
+            string = "    " + str(i+1)+". Device(s) [ "
+            for id in ID:
+                string += str(id) + " "
+            
+            cprint(string+"]", "light_cyan")            
+            t0 = play(ID, data=bufferlist[i], global_sr=global_sr, t0=t0)
+        print()
+        
+    return t0
 
 
 def audio_selection(audio_folder=".\\audio\\",audiopath=[]):
