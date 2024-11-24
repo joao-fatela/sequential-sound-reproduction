@@ -22,9 +22,9 @@ import threading
 current_frame=0
 
 def streamfunc(stream,duration):
-        stream.start()
-        time.sleep(duration)
-        stream.stop()
+    stream.start()
+    time.sleep(duration)
+    stream.stop()
 
 def organise_devices(s,l=[]):
     out = s.split("(",1)[0]
@@ -94,6 +94,10 @@ def inicio(ini_file='.\lib\config.ini', global_sr = 192000):
         if ('wait_duration' in read_config['reproduction']): 
             if (read_config['reproduction']['wait_duration'] != ''):
                 repro["wait"]=float(read_config['reproduction']['wait_duration'])
+                
+        if ('sampling_rate' in read_config['reproduction']): 
+            if (read_config['reproduction']['sampling_rate'] != ''):
+                global_sr=float(read_config['reproduction']['sampling_rate'])
 
         if ('audio_library' in read_config['reproduction']): 
             if (read_config['reproduction']['audio_library'] != ''):
