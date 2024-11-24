@@ -6,7 +6,7 @@ and a reproduction mode set as a string argument to the python program call.
 Author: João Fatela 
 Contact: joao.garrettfatela@unicampania.it
 Dipartimento di Architettura e Disegno Industriale, Università degli Studi della Campania 'Luigi Vanvitelli'
-22.11.2024
+24.11.2024
 """
 import os
 import configparser
