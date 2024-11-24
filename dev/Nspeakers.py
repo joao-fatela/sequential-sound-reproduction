@@ -11,6 +11,7 @@ Dipartimento di Architettura e Disegno Industriale, Università degli Studi dell
 import os
 import configparser
 import time
+import threading
 import soundfile as sf
 import sounddevice as sd
 import sys
@@ -100,17 +101,37 @@ def play(ID: int, f, dur=1, wait=0.5,global_sr=44100,t0=0):
 
     """
     
-    data, _ = sf.read(f)
+    #data, _ = sf.read(f)
     
-    sd.default.samplerate = global_sr
-    sd.default.device = ID
+    
     
     while time.time()-t0 < wait:
         pass
     
-    sd.play(data)
-    time.sleep(dur)
-    sd.stop()
+    # sd.play(data)
+    # time.sleep(dur)
+    # sd.stop()
+    
+    event = threading.Event()
+
+    def callback(outdata, frames, time, status):
+        data = wf.buffer_read(frames, dtype='float32')
+        if len(outdata) > len(data):
+            outdata[:len(data)] = data
+            outdata[len(data):] = b'\x00' * (len(outdata) - len(data))
+            raise sd.CallbackStop
+        else:
+            outdata[:] = data
+
+    with sf.SoundFile(f) as wf:
+        stream = sd.RawOutputStream(samplerate=global_sr,
+                                    callback=callback,
+                                    device=ID,
+                                    channels=wf.channels,
+                                    blocksize=1024,
+                                    finished_callback=event.set)
+        with stream:
+            event.wait()
     
     return time.time()
     
