@@ -41,7 +41,8 @@ def main():
     
     #user prompt
     cprint("\n\n!READ THE LIST ABOVE CAREFULLY!",'yellow')
-    IDs = input("Enter desired audio device IDs separated by spaces: ") # ! not resilient to misspellings/wrong input
+    IDs = input("Enter desired audio device IDs separated by spaces.\n"+
+                "For simultaneous reproduction in more than one device, write desired devices between parentheses () : ") # ! not resilient to misspellings/wrong input
 
     # reading the config file data
     read_config = configparser.ConfigParser()
