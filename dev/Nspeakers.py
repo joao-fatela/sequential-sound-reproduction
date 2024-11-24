@@ -128,10 +128,12 @@ def play(ID: int, f, dur=1, wait=0.5,global_sr=44100,t0=0):
                                     callback=callback,
                                     device=ID,
                                     channels=wf.channels,
+                                    latency='low',
                                     blocksize=1024,
                                     finished_callback=event.set)
-        with stream:
-            event.wait()
+        stream.start()
+        time.sleep(dur)
+        stream.stop()
     
     return time.time()
     
