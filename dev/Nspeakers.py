@@ -14,11 +14,12 @@ import time
 import threading
 import soundfile as sf
 import sounddevice as sd
+import numpy as np
 import sys
 from termcolor import cprint
 from write_device_list import main as write_devices
 
-  
+current_frame=0
 
 def inicio(ini_file='.\lib\config.ini', global_sr = 192000):
     """
@@ -75,7 +76,7 @@ def inicio(ini_file='.\lib\config.ini', global_sr = 192000):
     return mode,data,repro,global_sr
 
 # BASIC OPERATION FUNCTIONS
-def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
+def select_test_file(dir = 0, signal='test', folder = '.\\audio\\' ):
     """
     Select audio file from audio library in input directory.
 
@@ -95,15 +96,11 @@ def select_audio_file(dir = 0, signal='test', folder = '.\\audio\\' ):
 
     return file
         
-def play(ID: int, f, dur=1, wait=0.5,global_sr=44100,t0=0):
+def play(ID: int, data: np.ndarray, dur=1, wait=0.5,global_sr=44100,t0=0):
     """
     Reproduce a single signal for a fixed duration and device.
 
-    """
-    
-    #data, _ = sf.read(f)
-    
-    
+    """    
     
     while time.time()-t0 < wait:
         pass
@@ -113,48 +110,44 @@ def play(ID: int, f, dur=1, wait=0.5,global_sr=44100,t0=0):
     # sd.stop()
     
     event = threading.Event()
-
+            
     def callback(outdata, frames, time, status):
-        data = wf.buffer_read(frames, dtype='float32')
-        if len(outdata) > len(data):
-            outdata[:len(data)] = data
-            outdata[len(data):] = b'\x00' * (len(outdata) - len(data))
-            raise sd.CallbackStop
-        else:
-            outdata[:] = data
+        global current_frame
+        if status:
+            print(status)
+        chunksize = min(len(data) - current_frame, frames)
+        outdata[:chunksize] = data[current_frame:current_frame + chunksize]
+        if chunksize < frames:
+            outdata[chunksize:] = 0
+            raise sd.CallbackStop()
+        current_frame += chunksize
 
-    with sf.SoundFile(f) as wf:
-        stream = sd.RawOutputStream(samplerate=global_sr,
-                                    callback=callback,
-                                    device=ID,
-                                    channels=wf.channels,
-                                    latency='low',
-                                    blocksize=1024,
-                                    finished_callback=event.set)
-        stream.start()
-        time.sleep(dur)
-        stream.stop()
+
+    stream = sd.OutputStream(samplerate=global_sr,
+                                callback=callback,
+                                device=ID,
+                                latency='low',
+                                blocksize=1024,
+                                finished_callback=event.set)
+    stream.start()
+    time.sleep(dur)
+    stream.stop()
     
     return time.time()
     
 
         
 # SIMPLE AUDIO REPRODUCTION ROUTINES
-def sequential_reproduction(signal = 'test', duration = 1., wait=0.5, device_IDs=[], global_sr=44100,t0=0):
+def sequential_reproduction(buffer:np.ndarray, signal = 'test', duration = 1., wait=0.5, device_IDs=[], global_sr=44100,t0=0):
     """
     Play selected audio through list of devices sequentially.
     
     """
     cprint("\nBegin \'" + signal + "\' signal output", 'light_blue')
     
-    if duration is None:
-        dat,sr = sf.read(signal)
-        duration = dat.shape[0]/sr
-    
     for i,ID in enumerate(device_IDs):
-        cprint("    - Device "+ str(i+1), "light_cyan")
-        f=select_audio_file(i+1,signal) 
-        t0 = play(ID, f, duration, wait, global_sr=global_sr, t0=t0)
+        cprint("    - Device "+ str(i+1), "light_cyan")            
+        t0 = play(ID, buffer, duration, wait, global_sr=global_sr, t0=t0)
         
     return t0
 
@@ -253,16 +246,36 @@ if __name__ == "__main__":
                 
         elif str.lower(mode) == 'custom' or str.lower(mode) == 'c' or mode == '':
             audiopaths = audio_selection(audio_folder=repro['lib'])
-            for audio in audiopaths:
-                _,sr=sf.read(audio)
-                if sr<global_sr:
-                    global_sr = sr
-                    
-            cprint("\nReproduction sampling rate defaulted to " + str(global_sr) + " Hz.", "yellow", attrs=["dark"])
-            input("Press Enter begin reproduction sequence...")
+            
+            bufferlist = []
+            srlist = []
             
             for audio in audiopaths:
-                t0 = sequential_reproduction(signal=audio, duration=repro["dur"], wait=repro["wait"], device_IDs=device_IDs, global_sr=global_sr, t0=t0)
+                data,sr=sf.read(audio)
+                if sr<global_sr:
+                    global_sr = sr
+                if len(data.shape)==1:
+                    data = data.reshape(data.shape[0],1)
+                srlist.append(sr)
+                bufferlist.append(data)
+            
+            cprint("\nReproduction sampling rate defaulted to " + str(global_sr) + " Hz.", "yellow", attrs=["dark"])
+            
+            durationlist = []
+            if repro["dur"] is None:
+                for i in range(len(audiopaths)):
+                    durationlist.append(bufferlist[i].shape[0]/srlist[i])
+                cprint("Reproduction duration defaulted to audio file durations.", "yellow", attrs=["dark"])
+            else:
+                for i in range(len(audiopaths)):
+                    durationlist.append(repro["dur"])
+                cprint("Reproduction duration: "+str(repro["dur"])+"s.", "yellow", attrs=["dark"])
+                
+            cprint("Wait time: "+str(repro["wait"])+"s.", "yellow", attrs=["dark"])
+            input("\nPress Enter begin reproduction sequence...")
+            
+            for i in range(len(audiopaths)):                    
+                t0 = sequential_reproduction(buffer=bufferlist[i], signal=audiopaths[i], duration=durationlist[i], wait=repro["wait"], device_IDs=device_IDs, global_sr=global_sr, t0=t0)
 
     else:
         IsADirectoryError("./audio/ folder removed or missing.")
