@@ -11,15 +11,47 @@ Dipartimento di Architettura e Disegno Industriale, Università degli Studi dell
 import os
 import configparser
 import time
-import threading
 import soundfile as sf
 import sounddevice as sd
 import numpy as np
 import sys
 from termcolor import cprint
 from write_device_list import main as write_devices
+import threading
 
 current_frame=0
+
+def streamfunc(stream,duration):
+        stream.start()
+        time.sleep(duration)
+        stream.stop()
+
+def organise_devices(s,l=[]):
+    out = s.split("(",1)[0]
+    for k in out.split():
+        l.append([int(k)])
+        
+    if out != s:
+        
+        in_tail = s.split("(",1)[1]
+        
+        inn = in_tail.split(")",1)[0]
+        tail = in_tail.split(")",1)[1]
+            
+        ll = []
+            
+        for kk in inn.split():
+            ll.append(int(kk))
+            
+        l.append(ll)
+        
+        if "(" in tail :
+            l = organise_devices(tail,l=l)
+        else:
+            for k in tail.split():
+                l.append([int(k)])
+        
+    return l
 
 def inicio(ini_file='.\lib\config.ini', global_sr = 192000):
     """
@@ -38,19 +70,19 @@ def inicio(ini_file='.\lib\config.ini', global_sr = 192000):
         # extract output device IDs from the .ini file
         dd = read_config['devices']['device_id'] # string
         
-        
-        for x in dd.split(): 
-            if x.isnumeric():
-                data.append(int(x))
+        data = organise_devices(dd)
                 
         if data == []:
             cprint("You must first select desired reproduction devices.\nInput the corresponding numerical IDs.","light_red", attrs=["bold"])
             write_devices()
 
-    for devID in data:
-        devdata = sd.query_devices(device=devID)
-        if devdata['default_samplerate'] < global_sr:
-            global_sr = devdata['default_samplerate']
+    
+
+    for idlist in data:
+        for devID in idlist:
+            devdata = sd.query_devices(device=devID)
+            if devdata['default_samplerate'] < global_sr:
+                global_sr = devdata['default_samplerate']
 
     repro = dict({"dur": None, "wait": 0.5, "lib": "audio/"})
     
@@ -96,21 +128,12 @@ def select_test_file(dir = 0, signal='test', folder = '.\\audio\\' ):
 
     return file
         
-def play(ID: int, data: np.ndarray, dur=1, wait=0.5,global_sr=44100,t0=0):
+def play(IDlist: list, data: np.ndarray, dur=1, wait=0.5,global_sr=44100,t0=0):
     """
     Reproduce a single signal for a fixed duration and device.
 
     """    
     
-    while time.time()-t0 < wait:
-        pass
-    
-    # sd.play(data)
-    # time.sleep(dur)
-    # sd.stop()
-    
-    event = threading.Event()
-            
     def callback(outdata, frames, time, status):
         global current_frame
         if status:
@@ -121,17 +144,32 @@ def play(ID: int, data: np.ndarray, dur=1, wait=0.5,global_sr=44100,t0=0):
             outdata[chunksize:] = 0
             raise sd.CallbackStop()
         current_frame += chunksize
-
-
-    stream = sd.OutputStream(samplerate=global_sr,
+    
+    
+    
+    
+    jobs = []
+    streamlist = []
+    for i,ID in enumerate(IDlist):
+        streamlist.append(sd.OutputStream(samplerate=global_sr,
                                 callback=callback,
                                 device=ID,
                                 latency='low',
-                                blocksize=1024,
-                                finished_callback=event.set)
-    stream.start()
-    time.sleep(dur)
-    stream.stop()
+                                blocksize=1024)
+        )
+
+        jobs.append(threading.Thread(target=streamfunc,args=(streamlist[i],dur)))
+    
+    
+    while time.time()-t0 < wait:
+        pass
+    
+    for job in jobs:
+        job.start()
+        
+    for job in jobs:
+        job.join()
+        
     
     return time.time()
     
