@@ -53,6 +53,9 @@ If you wish to run the program with a different python distribution, you can ins
 3. Double click on `sequential_sound_reproduction.bat`.
 4. Write `'y'` upon first prompt . (This step can be skipped on following reproductions, unless new devices are connected/disconnected).
 5. Read list of devices and select desired audio devices.
+
+**BETA**: you can play the audio in more than one device simultaneously by writing the desired device IDs between parentheses. **The reproductions are not perfectly synchronous.**
+
 6. Input ID numbers of desired audio output devices separated by spaces. You can input any order desired.
 7. Run `'test'` routine (write `'test'`, `'t'`, or simply hit the return key)
 
@@ -75,9 +78,11 @@ Its operation is described below.
 
 #### **First prompt:**  
 - By inputting 'y', 'Y', or 'yes', the list of devices connected to Portaudio is output.
-	- A second prompt asks the user for a list of desired output device IDs, separated by empty spaces. Any sequence of devices can be input.
+	- A second prompt asks the user for a list of desired output device IDs, separated by empty spaces. Any sequence of devices can be input, separated by spaces. 
+	
+	**BETA**: you can play the audio in more than one device simultaneously by writing the desired device IDs between parentheses. **The reproductions are not perfectly synchronous.**
 	- The user input is stored in the configuration file.
-	- **warning**: the device sampling rate and audio sampling rate must match.
+	
 - By hitting any other key, the connected device list is not shown and the ID assignment step is not performed
 	- The output device IDs are loaded directly from the configuration file.
 	
@@ -109,6 +114,8 @@ Configuration file. Stores relevant information for the correct operation of the
 - `[reproduction]`
 	- `audio_duration` -> audio duration in seconds. Default is the total duration of the selected audio file.  
 	- `wait_duration` -> wait time after each reproduction in second. Default 0.5s. It's recommended to include some wait_duration => 0.1s, in order to compensate for potential program latency.
+	- `audio_library` -> path to audio files to use in routines. default `audio/`
+	- `sampling_rate` -> desired reproduction sampling rate. default 192000 Hz. May be overwritten by selected audio file or devices sampling rates.
 
 ## Audio signal library
 ### audio\
