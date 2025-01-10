@@ -53,11 +53,9 @@ If you wish to run the program with a different python distribution, you can ins
 3. Double click on `sequential_sound_reproduction.bat`.
 4. Write `'y'` upon first prompt . (This step can be skipped on following reproductions, unless new devices are connected/disconnected).
 5. Read list of devices and select desired audio devices.
-
-**BETA**: you can play the audio in more than one device simultaneously by writing the desired device IDs between parentheses. **The reproductions are not perfectly synchronous.**
-
 6. Input ID numbers of desired audio output devices separated by spaces. You can input any order desired.
-7. Run `'test'` routine (write `'test'`, `'t'`, or simply hit the return key)
+     - **BETA**: you can play the audio in more than one device simultaneously by writing the desired device IDs between parentheses. **The reproductions are not perfectly synchronous.**
+8. Run `'test'` routine (write `'test'`, `'t'`, or simply hit the return key)
 
 The devices should output a text-to-speech (TTS) voice numbering them one at a time. 
 Check that all desired devices are numbered in the order by which they were input in the batch prompt input by the user. 
