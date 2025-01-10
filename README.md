@@ -1,5 +1,5 @@
 # INTRO
-The code in this folder runs an audio reproduction routine over a set of output devices connected to the machine via Portaudio driver (http://www.portaudio.com/)
+The code in this repository runs an audio reproduction routine over a set of output devices connected to the machine via Portaudio driver (http://www.portaudio.com/)
 
 The package includes:
 - a sample audio library, 
