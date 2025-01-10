@@ -58,15 +58,15 @@ If you wish to run the program with a different python distribution, you can ins
 8. Run `'test'` routine (write `'test'`, `'t'`, or simply hit the return key)
 
 The devices should output a text-to-speech (TTS) voice numbering them one at a time. 
-Check that all desired devices are numbered in the order by which they were input in the batch prompt input by the user. 
+Check that all desired devices are numbered in the order defined by the user. 
 
-**TIP**: If you wish to change the ordering of the devices, or repeat reproduction in a given device, this should be hard coded in the input sequence of devices. Remeber: this order can always be changed directly in the configuration file `lib/config.ini` for convenience.
+**TIP**: If you wish to change the ordering of the devices, or repeat reproduction in a given device, this should be hard coded in the input sequence of devices. This order can always be changed directly in the configuration file `lib/config.ini` for convenience.
 
 ### Troubleshooting
  
 - **No audio output:** Re-run `sequential_sound_reproduction.bat`. Write `'y'` upon first prompt. Double check that the device IDs respect to *output devices*. Double check that the IDs respect to the *desired* devices. Double check that desired ID numbers are separated by *empty spaces*. Run the `'test'` reproduction mode again.
 - **The reproduction order of the output devices is incorrect:** Make sure that the output devices are connected to the computer and outputting at the desired volume. Re-run `sequential_sound_reproduction.bat`. Write `'y'` upon first prompt. Input the device IDs in the order that you wish them to play the audio. Run the `'test'` reproduction mode again.
-- **incompatible sampling rate error message:** The program automatically defaults the audio reproduction to the lowest sampling rate necessary for artifact-less reproduction. This is based on the sampling rate of the selected audios, as well as available sampling rate on the selected devices. However, certain audio APIs
+- **incompatible sampling rate error message:** The program automatically defaults the audio reproduction to the lowest sampling rate necessary for artifact-less reproduction. This is based on the sampling rate of the selected audios, as well as available sampling rate on the selected devices. However, certain audio APIs may still cause issues. You can try selecting a different API for your desired devices in the device selection menu, or defining a lower sampling rate by hand in the configuration file. It's recommended to use the same audio API for all of your devices.
 
 # Program structure
 ## User interface
@@ -82,7 +82,7 @@ Its operation is described below.
 	- The user input is stored in the configuration file.
 	
 - By hitting any other key, the connected device list is not shown and the ID assignment step is not performed
-	- The output device IDs are loaded directly from the configuration file.
+	- The output device IDs are loaded directly from the configuration file (which may be empty).
 	
 #### **Second prompt:** 
 - By hitting the return key, 't' key, or typing 'test', the 'test' reproduction mode is activated.
@@ -94,7 +94,7 @@ Its operation is described below.
 **warning**: the audio file and device loop have a fixed hierarchy. Each audio loops through all devices in the sequence before the next audio is played. The audio duration and wait times is fixed, set in the configuration file. See pseudocode below.
 
 	 for each audio_file {
-			for each output_device{
+			for each output_device {
 				play_audio( audio_file , output_device)
 				# with constant audio duration and wait times
 			}
@@ -111,7 +111,7 @@ Configuration file. Stores relevant information for the correct operation of the
 
 - `[reproduction]`
 	- `audio_duration` -> audio duration in seconds. Default is the total duration of the selected audio file.  
-	- `wait_duration` -> wait time after each reproduction in second. Default 0.5s. It's recommended to include some wait_duration => 0.1s, in order to compensate for potential program latency.
+	- `wait_duration` -> wait time after each reproduction in second. Default 0.5s. It's recommended to include some wait_duration >= 0.1s, in order to compensate for potential program latency.
 	- `audio_library` -> path to audio files to use in routines. default `audio/`
 	- `sampling_rate` -> desired reproduction sampling rate. default 192000 Hz. May be overwritten by selected audio file or devices sampling rates.
 
