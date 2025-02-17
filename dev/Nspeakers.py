@@ -15,9 +15,12 @@ import soundfile as sf
 import sounddevice as sd
 import numpy as np
 import sys
+from colorama import init
 from termcolor import cprint
 from write_device_list import main as write_devices
 import threading
+
+init()
 
 current_frame=0
 

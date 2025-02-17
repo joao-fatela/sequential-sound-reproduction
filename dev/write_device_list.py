@@ -13,7 +13,10 @@ Dipartimento di Architettura e Disegno Industriale, Università degli Studi dell
 """
 import configparser
 import sounddevice as sd
+from colorama import init
 from termcolor import cprint
+
+init()
 
 def print_output_devices():
 
